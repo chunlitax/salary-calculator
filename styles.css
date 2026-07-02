@@ -27,7 +27,7 @@ button, input, select { font: inherit; }
 
 .site-header {
   width: min(1180px, calc(100% - 40px));
-  min-height: 76px;
+  min-height: 64px;
   margin: auto;
   display: flex;
   align-items: center;
@@ -40,7 +40,24 @@ button, input, select { font: inherit; }
   gap: 11px;
   color: var(--ink);
   text-decoration: none;
+}
+
+.brand span:last-child {
+  display: grid;
+  gap: 2px;
+}
+
+.brand strong {
+  font-size: 16px;
   font-weight: 800;
+  line-height: 1.15;
+}
+
+.brand small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.15;
 }
 
 .brand-mark {
@@ -66,10 +83,10 @@ main { overflow: hidden; }
 
 .hero {
   width: min(1180px, calc(100% - 40px));
-  margin: 72px auto 38px;
+  margin: 34px auto 38px;
   display: grid;
   grid-template-columns: 1fr .9fr;
-  align-items: end;
+  align-items: center;
   gap: 80px;
 }
 
@@ -110,7 +127,18 @@ h1 {
 .field { display: grid; gap: 9px; font-size: 14px; font-weight: 700; }
 .field small { color: var(--muted); font-size: 12px; font-weight: 500; }
 
-.date-fields { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.label-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.label-line small {
+  white-space: nowrap;
+}
+
+.period-fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px 14px; }
 
 .money-input, .day-input, .date-input, select {
   width: 100%;
@@ -130,6 +158,13 @@ h1 {
   font-weight: 800;
 }
 
+.calculator-form .date-input,
+.calculator-form select {
+  color: var(--ink);
+  font-size: 18px;
+  font-weight: 700;
+}
+
 .money-input input, .day-input input {
   width: 100%;
   min-width: 0;
@@ -142,7 +177,16 @@ h1 {
   font-weight: 800;
 }
 
-.day-input { color: var(--muted); }
+.day-input {
+  color: var(--green);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.day-input input {
+  font-size: 18px;
+  font-weight: 700;
+}
 
 select {
   padding: 0 16px;
@@ -187,9 +231,70 @@ select {
 
 h2 { margin: 0; font-size: clamp(28px, 4vw, 40px); letter-spacing: -.03em; }
 
-.insured-badge { text-align: right; }
-.insured-badge span { display: block; color: var(--muted); font-size: 13px; }
-.insured-badge strong { display: block; margin-top: 4px; color: var(--green); font-size: 22px; }
+.insured-badge {
+  width: min(360px, 42vw);
+  text-align: right;
+}
+
+.insured-badge > span {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.insurance-scale {
+  margin-top: 14px;
+}
+
+.insurance-track {
+  position: relative;
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(15,118,94,.16), rgba(15,118,94,.92));
+}
+
+.insurance-track::before,
+.insurance-track::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: white;
+  box-shadow: 0 0 0 2px rgba(15, 118, 94, .25);
+  transform: translateY(-50%);
+}
+
+.insurance-track::before { left: 0; }
+.insurance-track::after { right: 0; }
+
+.insurance-track i {
+  position: absolute;
+  left: var(--marker-left, 50%);
+  bottom: 13px;
+  width: 0;
+  height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 10px solid var(--ink);
+  transform: translateX(-50%);
+  filter: drop-shadow(0 3px 4px rgba(23, 36, 43, .18));
+}
+
+.insurance-labels {
+  margin-top: 9px;
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.insurance-labels small {
+  font-size: inherit;
+}
 
 .summary-grid {
   display: grid;
@@ -296,15 +401,40 @@ h2 { margin: 0; font-size: clamp(28px, 4vw, 40px); letter-spacing: -.03em; }
 .icon.pension { color: #b06b08; background: rgba(240, 166, 58, .15); }
 .muted { color: #a4adaf; }
 
-.breakdown-total {
+.breakdown-totals {
+  margin-bottom: 28px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  padding-top: 18px;
+  border-top: 2px solid var(--ink);
+}
+
+.breakdown-totals > div {
   padding: 22px 0;
   display: flex;
   justify-content: space-between;
   gap: 20px;
-  border-top: 2px solid var(--ink);
+  align-items: center;
   font-weight: 800;
+  border-radius: 14px;
 }
-.breakdown-total strong { color: var(--green); font-size: 22px; }
+
+.breakdown-totals > div:first-child {
+  padding-left: 18px;
+  padding-right: 18px;
+  background: rgba(15, 118, 94, .08);
+}
+
+.breakdown-totals > div:last-child {
+  padding-left: 18px;
+  padding-right: 18px;
+  background: rgba(23, 36, 43, .06);
+}
+
+.breakdown-totals strong { font-size: 22px; }
+.breakdown-totals > div:first-child strong { color: var(--green); }
+.breakdown-totals > div:last-child strong { color: var(--ink); }
 
 .notes {
   padding: 18px 20px;
@@ -536,6 +666,26 @@ footer {
   font-size: 12px;
 }
 
+footer strong,
+footer span,
+footer small {
+  display: block;
+}
+
+footer strong {
+  color: var(--ink);
+  font-size: 15px;
+}
+
+footer span {
+  margin-top: 6px;
+}
+
+footer small {
+  margin-top: 4px;
+  font-size: 11px;
+}
+
 .toast {
   position: fixed;
   left: 50%;
@@ -558,7 +708,7 @@ footer {
 }
 
 @media (max-width: 820px) {
-  .hero { margin-top: 38px; grid-template-columns: 1fr; gap: 32px; }
+  .hero { margin-top: 28px; grid-template-columns: 1fr; gap: 32px; }
   .summary-grid, .explain-grid { grid-template-columns: 1fr; }
   .summary-card { min-height: 165px; }
   .leave-overview { grid-template-columns: 1fr 1fr; }
@@ -569,14 +719,14 @@ footer {
 @media (max-width: 560px) {
   .site-header, .hero, .result-shell, .payslip-section, .explain { width: min(100% - 24px, 1180px); }
   .site-header { min-height: 64px; }
-  .hero { margin-top: 34px; }
+  .hero { margin-top: 24px; }
   h1 { font-size: 39px; }
   .intro { font-size: 15px; }
   .calculator-form { padding: 18px; }
-  .date-fields { grid-template-columns: 1fr; }
+  .period-fields { grid-template-columns: 1fr; }
   .result-card { border-radius: 20px; }
-  .result-heading { align-items: flex-end; }
-  .insured-badge strong { font-size: 17px; }
+  .result-heading { align-items: flex-start; flex-direction: column; }
+  .insured-badge { width: 100%; text-align: left; }
   .breakdown-head { display: none; }
   .breakdown-row {
     padding: 18px 0;
@@ -594,6 +744,7 @@ footer {
   .breakdown-row > strong:nth-child(2) { text-align: left; }
   .breakdown-row > strong:nth-child(2)::before { content: "員工負擔"; }
   .breakdown-row > strong:nth-child(3)::before { content: "雇主負擔"; }
+  .breakdown-totals { grid-template-columns: 1fr; }
   .actions button { flex: 1; justify-content: space-between; }
   .leave-result { align-items: flex-start; flex-direction: column; }
   .leave-result > strong { align-self: flex-end; }

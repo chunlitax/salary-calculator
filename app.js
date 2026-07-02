@@ -2,6 +2,9 @@ const MINIMUM_WAGE = 29500;
 const LABOR_RATE = 0.125; // 勞保普通事故 11.5% + 就業保險 1%
 const HEALTH_RATE = 0.0517;
 const EMPLOYER_AVG_DEPENDENTS = 0.56;
+const OFFICE_NAME = "群利稅務記帳士事務所";
+const TOOL_NAME = "薪資小幫手";
+const COPYRIGHT_TEXT = "© 2026 群利稅務記帳士事務所。未經授權請勿重製、改作或移除品牌標示。";
 
 const laborBrackets = [
   29500, 30300, 31800, 33300, 34800, 36300,
@@ -64,7 +67,7 @@ function calculate() {
   const dailyWage = salary / 30;
   const leaveCash = Math.round(dailyWage * unusedLeaveDays);
 
-  $("insuredSalary").textContent = money(Math.max(laborBase, healthBase));
+  updateInsuranceScale(salary, Math.max(laborBase, healthBase));
   $("takeHome").textContent = money(takeHome);
   $("employerTotal").textContent = money(employerTotal);
   $("laborEmployee").textContent = money(laborEmployee);
@@ -72,7 +75,8 @@ function calculate() {
   $("healthEmployee").textContent = money(healthEmployee);
   $("healthEmployer").textContent = money(healthEmployer);
   $("pensionEmployer").textContent = money(pensionEmployer);
-  $("allContributions").textContent = money(employeeTotal + employerContribution);
+  $("employeeContributionTotal").textContent = money(employeeTotal);
+  $("employerContributionTotal").textContent = money(employerContribution);
   $("laborDaysLabel").textContent = laborCoverage.label;
   $("dependentLabel").textContent = dependents === 0 ? "本人" : `本人＋${dependents} 位眷屬`;
   $("dailyWage").textContent = money(dailyWage);
@@ -84,6 +88,36 @@ function calculate() {
   $("remainingLeaveDays").textContent = formatDays(leave.remaining);
   syncPayslipFromCalculator();
   updatePayslip();
+}
+
+function updateInsuranceScale(salary, insuredBase) {
+  const labels = insuranceScaleLabels(insuredBase);
+  const markerLeft = insuranceMarkerLeft(salary, labels);
+
+  $("salaryMarker").style.setProperty("--marker-left", `${markerLeft}%`);
+  $("insuranceLabels").replaceChildren(
+    ...labels.map((amount) => {
+      const label = document.createElement("small");
+      label.textContent = amount.toLocaleString("zh-TW");
+      return label;
+    })
+  );
+}
+
+function insuranceScaleLabels(insuredBase) {
+  const index = Math.max(0, healthBrackets.indexOf(insuredBase));
+  const count = 5;
+  const half = Math.floor(count / 2);
+  let start = Math.max(0, index - half);
+  start = Math.min(start, Math.max(0, healthBrackets.length - count));
+  return healthBrackets.slice(start, start + count);
+}
+
+function insuranceMarkerLeft(salary, labels) {
+  const min = labels[0];
+  const max = labels.at(-1);
+  const normalizedSalary = Math.max(min, Math.min(max, salary || 0));
+  return max === min ? 50 : ((normalizedSalary - min) / (max - min)) * 100;
 }
 
 function calculateLaborCoverageDays(hireValue, terminationValue, calculationValue) {
@@ -233,7 +267,14 @@ async function downloadResult() {
     context.scale(scale, scale);
     context.textBaseline = "alphabetic";
 
-    const salary = money(Number($("salary").value) || 0);
+    const salaryAmount = Number($("salary").value) || 0;
+    const salaryText = money(salaryAmount);
+    const insuredBase = Math.max(
+      bracketFor(salaryAmount, laborBrackets),
+      bracketFor(salaryAmount, healthBrackets)
+    );
+    const insuranceLabels = insuranceScaleLabels(insuredBase);
+    const insuranceMarker = insuranceMarkerLeft(salaryAmount, insuranceLabels);
     const rows = [
       ["勞工保險", $("laborEmployee").textContent, $("laborEmployer").textContent],
       ["全民健康保險", $("healthEmployee").textContent, $("healthEmployer").textContent],
@@ -248,20 +289,16 @@ async function downloadResult() {
 
     context.fillStyle = "#0f765e";
     context.font = '800 18px "Noto Sans TC", sans-serif';
-    context.fillText("MONTHLY SUMMARY", 96, 112);
+    context.fillText(OFFICE_NAME, 96, 112);
 
     context.fillStyle = "#17242b";
     context.font = '800 42px "Noto Sans TC", sans-serif';
     context.fillText("薪資勞健保試算", 96, 166);
-
-    context.textAlign = "right";
     context.fillStyle = "#68767d";
-    context.font = '600 16px "Noto Sans TC", sans-serif';
-    context.fillText("投保級距", 1104, 112);
-    context.fillStyle = "#0f765e";
-    context.font = '800 28px "Noto Sans TC", sans-serif';
-    context.fillText($("insuredSalary").textContent, 1104, 151);
-    context.textAlign = "left";
+    context.font = '700 16px "Noto Sans TC", sans-serif';
+    context.fillText(TOOL_NAME, 96, 196);
+
+    drawInsuranceScale(context, 764, 104, 340, insuranceLabels, insuranceMarker);
 
     drawSummaryCard(context, 96, 210, 492, 224, "#0f765e",
       "員工實領", $("takeHome").textContent, "月薪－勞保自付－健保自付");
@@ -285,7 +322,7 @@ async function downloadResult() {
 
     context.fillStyle = "#68767d";
     context.font = '600 15px "Noto Sans TC", sans-serif';
-    context.fillText(`輸入月薪 ${salary}｜${$("dependentLabel").textContent}`, 96, 608);
+    context.fillText(`輸入月薪 ${salaryText}｜${$("dependentLabel").textContent}`, 96, 608);
 
     context.strokeStyle = "#dfe7e5";
     context.lineWidth = 1;
@@ -320,27 +357,33 @@ async function downloadResult() {
       context.stroke();
     });
 
+    roundRect(context, 96, 1034, 492, 56, 12, "rgba(15,118,94,.08)");
+    roundRect(context, 612, 1034, 492, 56, 12, "rgba(23,36,43,.06)");
     context.textAlign = "left";
     context.fillStyle = "#17242b";
-    context.font = '800 20px "Noto Sans TC", sans-serif';
-    context.fillText("每月保費與提繳合計", 96, 1070);
+    context.font = '800 18px "Noto Sans TC", sans-serif';
+    context.fillText("員工自付合計", 118, 1070);
+    context.fillText("雇主負擔合計", 634, 1070);
     context.textAlign = "right";
     context.fillStyle = "#0f765e";
-    context.font = '800 28px "Noto Sans TC", sans-serif';
-    context.fillText($("allContributions").textContent, 1104, 1070);
+    context.font = '800 26px "Noto Sans TC", sans-serif';
+    context.fillText($("employeeContributionTotal").textContent, 566, 1070);
+    context.fillStyle = "#17242b";
+    context.fillText($("employerContributionTotal").textContent, 1082, 1070);
 
     roundRect(context, 96, 1106, 1008, 68, 12, "#f3f6f4");
     context.textAlign = "left";
     context.fillStyle = "#68767d";
     context.font = '500 13px "Noto Sans TC", sans-serif';
-    context.fillText("特休折現以固定月薪 ÷ 30 × 未休日數估算；其他金額仍以主管機關核定為準。", 118, 1147);
+    context.fillText("特休折現以固定月薪 ÷ 30 × 未休日數估算；其他金額仍以主管機關核定為準。", 118, 1136);
+    context.fillText(COPYRIGHT_TEXT, 118, 1158);
 
-    const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.92));
     if (!blob) throw new Error("無法建立圖片");
 
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.download = `薪資勞健保試算-${new Date().toISOString().slice(0, 10)}.png`;
+    link.download = `薪資勞健保試算-${new Date().toISOString().slice(0, 10)}.jpg`;
     link.href = url;
     document.body.appendChild(link);
     link.click();
@@ -373,6 +416,48 @@ function drawSummaryCard(context, x, y, width, height, color, label, amount, not
   context.fillStyle = "rgba(255,255,255,.7)";
   context.font = '500 14px "Noto Sans TC", sans-serif';
   context.fillText(note, x + 30, y + 164);
+}
+
+function drawInsuranceScale(context, x, y, width, labels, markerLeft) {
+  context.textAlign = "right";
+  context.fillStyle = "#68767d";
+  context.font = '600 16px "Noto Sans TC", sans-serif';
+  context.fillText("投保級距", x + width, y);
+
+  const trackY = y + 30;
+  const trackHeight = 10;
+  const gradient = context.createLinearGradient(x, trackY, x + width, trackY);
+  gradient.addColorStop(0, "rgba(15,118,94,.16)");
+  gradient.addColorStop(1, "rgba(15,118,94,.92)");
+  roundRect(context, x, trackY, width, trackHeight, 999, gradient);
+
+  context.fillStyle = "#ffffff";
+  context.strokeStyle = "rgba(15,118,94,.28)";
+  context.lineWidth = 2;
+  [x, x + width].forEach((dotX) => {
+    context.beginPath();
+    context.arc(dotX, trackY + trackHeight / 2, 4, 0, Math.PI * 2);
+    context.fill();
+    context.stroke();
+  });
+
+  const markerX = x + width * markerLeft / 100;
+  context.beginPath();
+  context.moveTo(markerX, trackY - 4);
+  context.lineTo(markerX - 8, trackY - 16);
+  context.lineTo(markerX + 8, trackY - 16);
+  context.closePath();
+  context.fillStyle = "#17242b";
+  context.fill();
+
+  context.fillStyle = "#68767d";
+  context.font = '700 12px "Noto Sans TC", sans-serif';
+  labels.forEach((amount, index) => {
+    const labelX = x + (width * index) / (labels.length - 1);
+    context.textAlign = index === 0 ? "left" : index === labels.length - 1 ? "right" : "center";
+    context.fillText(amount.toLocaleString("zh-TW"), labelX, trackY + 34);
+  });
+  context.textAlign = "left";
 }
 
 function drawDots(context, width, height) {
@@ -551,9 +636,12 @@ async function downloadPayslip() {
     context.fillStyle = "#0f765e";
     context.font = '800 18px "Noto Sans TC", sans-serif';
     context.fillText($("companyName").value.trim() || "公司名稱", 96, 108);
+    context.fillStyle = "#68767d";
+    context.font = '700 14px "Noto Sans TC", sans-serif';
+    context.fillText(`由 ${OFFICE_NAME} 產製`, 96, 134);
     context.fillStyle = "#17242b";
     context.font = '800 42px "Noto Sans TC", sans-serif';
-    context.fillText("薪資明細表", 96, 164);
+    context.fillText("薪資明細表", 96, 180);
     context.textAlign = "right";
     context.font = '800 21px "Noto Sans TC", sans-serif';
     context.fillText(formatMonth($("payrollMonth").value), 1104, 130);
@@ -583,14 +671,15 @@ async function downloadPayslip() {
     context.textAlign = "center";
     context.fillStyle = "#68767d";
     context.font = '500 12px "Noto Sans TC", sans-serif';
-    context.fillText("本薪資條由薪資小幫手產製，金額請以公司實際薪資紀錄為準。", width / 2, netY + 126);
+    context.fillText("本薪資條由群利稅務記帳士事務所薪資小幫手產製，金額請以公司實際薪資紀錄為準。", width / 2, netY + 126);
+    context.fillText(COPYRIGHT_TEXT, width / 2, netY + 148);
 
-    const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.92));
     if (!blob) throw new Error("無法建立薪資條圖片");
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     const employee = $("employeeName").value.trim() || "員工";
-    link.download = `${employee}-${$("payrollMonth").value || "薪資"}薪資條.png`;
+    link.download = `${employee}-${$("payrollMonth").value || "薪資"}薪資條.jpg`;
     link.href = url;
     document.body.appendChild(link);
     link.click();

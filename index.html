@@ -3,8 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="快速試算員工每月勞保、健保、勞退、實領薪資與雇主成本。">
-  <title>薪資勞健保試算</title>
+  <meta name="description" content="群利稅務記帳士事務所提供，快速試算員工每月勞保、健保、勞退、實領薪資與雇主成本。">
+  <meta name="author" content="群利稅務記帳士事務所">
+  <title>群利稅務記帳士事務所｜薪資勞健保試算</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -12,9 +13,12 @@
 </head>
 <body>
   <header class="site-header">
-    <a class="brand" href="#" aria-label="薪資小幫手首頁">
+    <a class="brand" href="#" aria-label="群利稅務記帳士事務所薪資小幫手首頁">
       <span class="brand-mark">薪</span>
-      <span>薪資小幫手</span>
+      <span>
+        <strong>群利稅務記帳士事務所</strong>
+        <small>薪資小幫手</small>
+      </span>
     </a>
     <span class="year-pill">2026 年費率</span>
   </header>
@@ -47,30 +51,27 @@
           </select>
         </label>
 
-        <div class="date-fields">
+        <div class="period-fields">
           <label class="field">
             <span>到職日</span>
             <input class="date-input" id="hireDate" type="date">
           </label>
           <label class="field">
-            <span>離職日</span>
+            <span class="label-line">離職日 <small>未離職可留空</small></span>
             <input class="date-input" id="terminationDate" type="date">
-            <small>未離職可留空</small>
           </label>
           <label class="field">
-            <span>計算基準日</span>
+            <span>發薪日</span>
             <input class="date-input" id="calculationDate" type="date">
           </label>
+          <label class="field">
+            <span class="label-line">本期已休特休 <small>可輸入小數點</small></span>
+            <span class="day-input">
+              <input id="usedLeaveDays" type="number" min="0" max="30" step="0.5" value="0" inputmode="decimal">
+              <span>天</span>
+            </span>
+          </label>
         </div>
-
-        <label class="field">
-          <span>本期已休特休</span>
-          <span class="day-input">
-            <input id="usedLeaveDays" type="number" min="0" max="30" step="0.5" value="0" inputmode="decimal">
-            <span>天</span>
-          </span>
-          <small>可輸入半天，例如 2.5 天</small>
-        </label>
       </form>
     </section>
 
@@ -83,7 +84,18 @@
           </div>
           <div class="insured-badge">
             <span>投保級距</span>
-            <strong id="insuredSalary">NT$40,100</strong>
+            <div class="insurance-scale" aria-label="薪水落在投保級距中的位置">
+              <div class="insurance-track">
+                <i id="salaryMarker" aria-hidden="true"></i>
+              </div>
+              <div class="insurance-labels" id="insuranceLabels">
+                <small>29,500</small>
+                <small>30,300</small>
+                <small>31,800</small>
+                <small>33,300</small>
+                <small>34,800</small>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -160,15 +172,21 @@
             <strong class="muted">—</strong>
             <strong id="pensionEmployer">NT$2,406</strong>
           </div>
-          <div class="breakdown-total">
-            <span>每月保費與提繳合計</span>
-            <strong id="allContributions">NT$9,480</strong>
+          <div class="breakdown-totals">
+            <div>
+              <span>員工自付合計</span>
+              <strong id="employeeContributionTotal">NT$1,625</strong>
+            </div>
+            <div>
+              <span>雇主負擔合計</span>
+              <strong id="employerContributionTotal">NT$7,855</strong>
+            </div>
           </div>
         </div>
 
         <div class="notes">
           <p>試算未含職業災害保險、工資墊償基金及補充保費。</p>
-          <p>勞保到職月、離職月依計算基準日所在月份之投保日數估算；每月最多以 30 天計。</p>
+          <p>勞保到職月、離職月依發薪日所在月份之投保日數估算；每月最多以 30 天計。</p>
           <p>特休日數目前依勞動部「週年制」規則估算；留職停薪、遞延或曆年制須另行調整。</p>
           <p>固定月薪制特休折現以月薪 ÷ 30 × 未休日數估算；變動薪資或特殊工時應另行確認。</p>
           <p>實際金額仍以主管機關核定與繳款單為準。</p>
@@ -268,7 +286,7 @@
               <span>本期實發金額</span>
               <strong id="netPay">NT$38,375</strong>
             </div>
-            <p class="payslip-footnote">本薪資條由薪資小幫手產製，金額請以公司實際薪資紀錄為準。</p>
+            <p class="payslip-footnote">本薪資條由群利稅務記帳士事務所薪資小幫手產製，金額請以公司實際薪資紀錄為準。</p>
           </div>
 
           <div class="actions payslip-actions">
@@ -293,7 +311,11 @@
     </section>
   </main>
 
-  <footer>本工具僅供快速估算，不構成會計、稅務或法律建議。</footer>
+  <footer>
+    <strong>群利稅務記帳士事務所</strong>
+    <span>© 2026 群利稅務記帳士事務所。保留所有權利。</span>
+    <small>本工具僅供快速估算，不構成會計、稅務或法律建議。未經授權請勿重製、改作或移除品牌標示。</small>
+  </footer>
   <div class="toast" id="toast" role="status">試算圖已下載</div>
   <script src="app.js"></script>
 </body>
