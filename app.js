@@ -371,12 +371,13 @@ async function downloadResult() {
     context.fillStyle = "#17242b";
     context.fillText($("employerContributionTotal").textContent, 1082, 1070);
 
-    roundRect(context, 96, 1106, 1008, 68, 12, "#f3f6f4");
+    roundRect(context, 96, 1098, 1008, 84, 12, "#f3f6f4");
     context.textAlign = "left";
     context.fillStyle = "#68767d";
     context.font = '500 13px "Noto Sans TC", sans-serif';
-    context.fillText("特休折現以固定月薪 ÷ 30 × 未休日數估算；其他金額仍以主管機關核定為準。", 118, 1136);
-    context.fillText(COPYRIGHT_TEXT, 118, 1158);
+    context.fillText("本工具未納入薪資所得扣繳試算；是否扣繳及扣繳金額，請依相關稅務規定辦理。", 118, 1127);
+    context.fillText("特休折現以固定月薪 ÷ 30 × 未休日數估算；其他金額仍以主管機關核定為準。", 118, 1149);
+    context.fillText(COPYRIGHT_TEXT, 118, 1171);
 
     const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.92));
     if (!blob) throw new Error("無法建立圖片");
