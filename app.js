@@ -43,22 +43,31 @@ function calculate() {
   const laborCoverage = calculateLaborCoverageDays(
     $("hireDate").value,
     $("terminationDate").value,
-    $("calculationDate").value
+    $("salaryMonth").value
   );
   const leave = calculateAnnualLeave(
     $("hireDate").value,
-    $("calculationDate").value,
+    monthEndDateValue($("salaryMonth").value),
     Math.max(0, Number($("usedLeaveDays").value) || 0)
   );
   const unusedLeaveDays = leave.remaining;
   const laborBase = bracketFor(salary, laborBrackets);
   const healthBase = bracketFor(salary, healthBrackets);
   const pensionBase = bracketFor(salary, pensionBrackets);
+  const healthCoverage = calculateHealthCoverage(
+    $("hireDate").value,
+    $("terminationDate").value,
+    $("salaryMonth").value
+  );
 
   const laborEmployee = Math.round(laborBase * LABOR_RATE * 0.2 * laborCoverage.ratio);
   const laborEmployer = Math.round(laborBase * LABOR_RATE * 0.7 * laborCoverage.ratio);
-  const healthEmployee = Math.round(healthBase * HEALTH_RATE * 0.3 * (1 + dependents));
-  const healthEmployer = Math.round(healthBase * HEALTH_RATE * 0.6 * (1 + EMPLOYER_AVG_DEPENDENTS));
+  const healthEmployee = healthCoverage.covered
+    ? Math.round(healthBase * HEALTH_RATE * 0.3 * (1 + dependents))
+    : 0;
+  const healthEmployer = healthCoverage.covered
+    ? Math.round(healthBase * HEALTH_RATE * 0.6 * (1 + EMPLOYER_AVG_DEPENDENTS))
+    : 0;
   const pensionEmployer = Math.round(pensionBase * 0.06);
   const employeeTotal = laborEmployee + healthEmployee;
   const employerContribution = laborEmployer + healthEmployer + pensionEmployer;
@@ -79,7 +88,7 @@ function calculate() {
   $("employeeContributionTotal").textContent = money(employeeTotal);
   $("employerContributionTotal").textContent = money(employerContribution);
   $("laborDaysLabel").textContent = laborCoverage.label;
-  $("dependentLabel").textContent = dependents === 0 ? "本人" : `本人＋${dependents} 位眷屬`;
+  $("dependentLabel").textContent = healthCoverage.label;
   $("dailyWage").textContent = money(dailyWage);
   $("leaveDaysLabel").textContent = unusedLeaveDays.toLocaleString("zh-TW");
   $("leaveCash").textContent = money(leaveCash);
@@ -130,10 +139,10 @@ function insuranceMarkerLeft(salary, labels) {
   return max === min ? 50 : ((normalizedSalary - min) / (max - min)) * 100;
 }
 
-function calculateLaborCoverageDays(hireValue, terminationValue, calculationValue) {
-  const calculation = parseLocalDate(calculationValue) || new Date();
-  const monthStart = new Date(calculation.getFullYear(), calculation.getMonth(), 1);
-  const monthEnd = new Date(calculation.getFullYear(), calculation.getMonth() + 1, 0);
+function calculateLaborCoverageDays(hireValue, terminationValue, salaryMonthValue) {
+  const salaryMonth = parseLocalMonth(salaryMonthValue) || new Date();
+  const monthStart = new Date(salaryMonth.getFullYear(), salaryMonth.getMonth(), 1);
+  const monthEnd = new Date(salaryMonth.getFullYear(), salaryMonth.getMonth() + 1, 0);
   const hire = parseLocalDate(hireValue);
   const termination = parseLocalDate(terminationValue);
 
@@ -173,6 +182,22 @@ function calculateLaborCoverageDays(hireValue, terminationValue, calculationValu
     days,
     ratio: days / 30,
     label
+  };
+}
+
+function calculateHealthCoverage(hireValue, terminationValue, salaryMonthValue) {
+  const salaryMonth = parseLocalMonth(salaryMonthValue) || new Date();
+  const monthEnd = new Date(salaryMonth.getFullYear(), salaryMonth.getMonth() + 1, 0);
+  const hire = parseLocalDate(hireValue);
+  const termination = parseLocalDate(terminationValue);
+  const dependents = Number($("dependents").value);
+  const dependentText = dependents === 0 ? "本人" : `本人＋${dependents} 位眷屬`;
+
+  const covered = (!hire || hire <= monthEnd) && (!termination || termination >= monthEnd);
+
+  return {
+    covered,
+    label: covered ? `${dependentText}｜月底在保` : `${dependentText}｜月底未在保`
   };
 }
 
@@ -232,6 +257,21 @@ function parseLocalDate(value) {
   return new Date(parts[0], parts[1] - 1, parts[2]);
 }
 
+function parseLocalMonth(value) {
+  const parts = value.split("-").map(Number);
+  if (parts.length !== 2 || parts.some(Number.isNaN)) return null;
+  return new Date(parts[0], parts[1] - 1, 1);
+}
+
+function monthEndDateValue(monthValue) {
+  const month = parseLocalMonth(monthValue) || new Date();
+  const end = new Date(month.getFullYear(), month.getMonth() + 1, 0);
+  const year = end.getFullYear();
+  const monthNumber = String(end.getMonth() + 1).padStart(2, "0");
+  const day = String(end.getDate()).padStart(2, "0");
+  return `${year}-${monthNumber}-${day}`;
+}
+
 function addYears(date, years) {
   const result = new Date(date.getFullYear() + years, date.getMonth(), date.getDate());
   if (result.getMonth() !== date.getMonth()) result.setDate(0);
@@ -251,9 +291,9 @@ function formatDays(value) {
 function reset() {
   $("salary").value = 40000;
   $("dependents").value = "0";
+  $("salaryMonth").value = todayMonthValue();
   $("hireDate").value = "";
   $("terminationDate").value = "";
-  $("calculationDate").value = todayValue();
   $("usedLeaveDays").value = "0";
   calculate();
   $("salary").focus();
@@ -502,7 +542,7 @@ function initializePayslip() {
   createPayslipItem($("earningItems"), "基本薪資", Number($("salary").value), "salary");
   createPayslipItem($("deductionItems"), "勞保費", amountFromText($("laborEmployee").textContent), "labor");
   createPayslipItem($("deductionItems"), "健保費", amountFromText($("healthEmployee").textContent), "health");
-  $("payrollMonth").value = todayValue().slice(0, 7);
+  $("payrollMonth").value = $("salaryMonth").value || todayMonthValue();
   $("payDate").value = todayValue();
 }
 
@@ -603,6 +643,11 @@ function handlePayslipItemsInput(event) {
   const row = event.target.closest(".custom-item.system:not(.locked)");
   if (row) row.dataset.manual = "true";
   updatePayslip();
+}
+
+function handleSalaryMonthChange() {
+  $("payrollMonth").value = $("salaryMonth").value;
+  calculate();
 }
 
 async function downloadPayslip() {
@@ -802,9 +847,9 @@ function showToast(message) {
 
 $("salary").addEventListener("input", calculate);
 $("dependents").addEventListener("change", calculate);
+$("salaryMonth").addEventListener("change", handleSalaryMonthChange);
 $("hireDate").addEventListener("change", calculate);
 $("terminationDate").addEventListener("change", calculate);
-$("calculationDate").addEventListener("change", calculate);
 $("usedLeaveDays").addEventListener("input", calculate);
 $("resetButton").addEventListener("click", reset);
 $("downloadButton").addEventListener("click", downloadResult);
@@ -839,6 +884,10 @@ function todayValue() {
   return `${year}-${month}-${day}`;
 }
 
-$("calculationDate").value = todayValue();
+function todayMonthValue() {
+  return todayValue().slice(0, 7);
+}
+
+$("salaryMonth").value = todayMonthValue();
 initializePayslip();
 calculate();
