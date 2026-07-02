@@ -3,21 +3,25 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="群利稅務記帳士事務所提供，快速試算員工每月勞保、健保、勞退、實領薪資與雇主成本。">
+  <meta name="description" content="薪資小幫手由群利稅務記帳士事務所提供，可快速試算勞保、健保、勞退、薪資成本與產製薪資條。">
   <meta name="author" content="群利稅務記帳士事務所">
-  <title>群利稅務記帳士事務所｜薪資勞健保試算</title>
+  <meta property="og:title" content="薪資小幫手｜群利稅務記帳士事務所">
+  <meta property="og:description" content="快速試算勞保、健保、勞退、薪資成本與產製薪資條。">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary">
+  <title>薪資小幫手｜群利稅務記帳士事務所</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20260702-minimum-warning">
+  <link rel="stylesheet" href="styles.css?v=20260702-payslip-editable">
 </head>
 <body>
   <header class="site-header">
     <a class="brand" href="#" aria-label="群利稅務記帳士事務所薪資小幫手首頁">
       <span class="brand-mark">薪</span>
       <span>
-        <strong>群利稅務記帳士事務所</strong>
-        <small>薪資小幫手</small>
+        <strong>薪資小幫手</strong>
+        <small>群利稅務記帳士事務所</small>
       </span>
     </a>
     <span class="year-pill">2026 年費率</span>
@@ -219,7 +223,7 @@
       <div class="section-intro">
         <p class="eyebrow">PAYSLIP GENERATOR</p>
         <h2>產製員工薪資條</h2>
-        <p>基本薪資與勞健保會從上方試算自動帶入；其他加項、扣項可不限數量自由新增。</p>
+        <p>基本薪資與勞健保會從上方試算自動帶入；勞健保扣項可依投保身分自行調整或刪除，其他加項、扣項也可不限數量自由新增。</p>
       </div>
 
       <div class="payslip-workspace">
@@ -261,7 +265,7 @@
             <div class="editor-heading">
               <div>
                 <h3>扣項</h3>
-                <small>例如：遲到扣薪、請假扣薪、福利金</small>
+                <small>勞健保會先自動帶入，也可依個別投保身分調整或刪除</small>
               </div>
               <button class="add-item-button deduction" id="addDeductionButton" type="button">＋ 新增扣項</button>
             </div>
@@ -330,6 +334,6 @@
     <small>本工具僅供快速估算，不構成會計、稅務或法律建議。未經授權請勿重製、改作或移除品牌標示。</small>
   </footer>
   <div class="toast" id="toast" role="status">試算圖已下載</div>
-  <script src="app.js?v=20260702-minimum-warning"></script>
+  <script src="app.js?v=20260702-payslip-editable"></script>
 </body>
 </html>

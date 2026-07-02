@@ -463,7 +463,8 @@ function drawDots(context, width, height) {
 
 function createPayslipItem(container, name = "", amount = 0, systemKey = "") {
   const row = document.createElement("div");
-  row.className = `custom-item${systemKey ? " system" : ""}`;
+  const locked = systemKey === "salary";
+  row.className = `custom-item${systemKey ? " system" : ""}${locked ? " locked" : ""}`;
   if (systemKey) row.dataset.system = systemKey;
 
   const nameInput = document.createElement("input");
@@ -471,7 +472,7 @@ function createPayslipItem(container, name = "", amount = 0, systemKey = "") {
   nameInput.type = "text";
   nameInput.placeholder = container.id === "earningItems" ? "例如：三節獎金" : "例如：遲到扣薪";
   nameInput.value = name;
-  nameInput.readOnly = Boolean(systemKey);
+  nameInput.readOnly = locked;
   nameInput.setAttribute("aria-label", "薪資項目名稱");
 
   const amountInput = document.createElement("input");
@@ -482,7 +483,7 @@ function createPayslipItem(container, name = "", amount = 0, systemKey = "") {
   amountInput.inputMode = "numeric";
   amountInput.placeholder = "金額";
   amountInput.value = Math.max(0, Math.round(amount));
-  amountInput.readOnly = Boolean(systemKey);
+  amountInput.readOnly = locked;
   amountInput.setAttribute("aria-label", "薪資項目金額");
 
   const removeButton = document.createElement("button");
@@ -512,7 +513,9 @@ function syncPayslipFromCalculator() {
 }
 
 function setSystemItemAmount(key, amount) {
-  const input = document.querySelector(`[data-system="${key}"] .item-amount`);
+  const row = document.querySelector(`[data-system="${key}"]`);
+  if (row?.dataset.manual === "true") return;
+  const input = row?.querySelector(".item-amount");
   if (input) input.value = Math.max(0, Math.round(amount));
 }
 
@@ -593,6 +596,12 @@ function formatDate(value) {
 
 function resetPayslipCustomItems() {
   document.querySelectorAll(".custom-item:not(.system)").forEach((row) => row.remove());
+  updatePayslip();
+}
+
+function handlePayslipItemsInput(event) {
+  const row = event.target.closest(".custom-item.system:not(.locked)");
+  if (row) row.dataset.manual = "true";
   updatePayslip();
 }
 
@@ -803,8 +812,8 @@ $("companyName").addEventListener("input", updatePayslip);
 $("employeeName").addEventListener("input", updatePayslip);
 $("payrollMonth").addEventListener("change", updatePayslip);
 $("payDate").addEventListener("change", updatePayslip);
-$("earningItems").addEventListener("input", updatePayslip);
-$("deductionItems").addEventListener("input", updatePayslip);
+$("earningItems").addEventListener("input", handlePayslipItemsInput);
+$("deductionItems").addEventListener("input", handlePayslipItemsInput);
 $("earningItems").addEventListener("click", (event) => {
   if (event.target.classList.contains("remove-item")) {
     event.target.closest(".custom-item").remove();

@@ -602,8 +602,8 @@ h2 { margin: 0; font-size: clamp(28px, 4vw, 40px); letter-spacing: -.03em; }
 }
 
 .item-amount { text-align: right; }
-.custom-item.system .item-name,
-.custom-item.system .item-amount { color: var(--muted); background: #f5f6f4; }
+.custom-item.locked .item-name,
+.custom-item.locked .item-amount { color: var(--muted); background: #f5f6f4; }
 
 .remove-item {
   width: 38px;
@@ -617,7 +617,7 @@ h2 { margin: 0; font-size: clamp(28px, 4vw, 40px); letter-spacing: -.03em; }
 }
 
 .remove-item:hover { background: rgba(165, 83, 56, .08); }
-.custom-item.system .remove-item { visibility: hidden; }
+.custom-item.locked .remove-item { visibility: hidden; }
 
 .payslip-preview-wrap { position: sticky; top: 20px; }
 
