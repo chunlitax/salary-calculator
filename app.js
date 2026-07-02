@@ -379,18 +379,12 @@ async function downloadResult() {
     context.fillText("特休折現以固定月薪 ÷ 30 × 未休日數估算；其他金額仍以主管機關核定為準。", 118, 1149);
     context.fillText(COPYRIGHT_TEXT, 118, 1171);
 
-    const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.92));
-    if (!blob) throw new Error("無法建立圖片");
-
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.download = `薪資勞健保試算-${new Date().toISOString().slice(0, 10)}.jpg`;
-    link.href = url;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-    showToast("試算圖已下載");
+    await deliverCanvasImage(
+      canvas,
+      `薪資勞健保試算-${new Date().toISOString().slice(0, 10)}.jpg`,
+      "試算圖已下載",
+      "長按圖片即可儲存到手機相簿"
+    );
   } catch (error) {
     console.error(error);
     showToast("下載失敗，請再試一次");
@@ -675,18 +669,13 @@ async function downloadPayslip() {
     context.fillText("本薪資條由群利稅務記帳士事務所薪資小幫手產製，金額請以公司實際薪資紀錄為準。", width / 2, netY + 126);
     context.fillText(COPYRIGHT_TEXT, width / 2, netY + 148);
 
-    const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.92));
-    if (!blob) throw new Error("無法建立薪資條圖片");
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
     const employee = $("employeeName").value.trim() || "員工";
-    link.download = `${employee}-${$("payrollMonth").value || "薪資"}薪資條.jpg`;
-    link.href = url;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-    showToast("薪資條已下載");
+    await deliverCanvasImage(
+      canvas,
+      `${employee}-${$("payrollMonth").value || "薪資"}薪資條.jpg`,
+      "薪資條已下載",
+      "長按薪資條即可儲存到手機相簿"
+    );
   } catch (error) {
     console.error(error);
     showToast("薪資條下載失敗，請再試一次");
@@ -724,6 +713,80 @@ function drawPayslipColumn(context, x, y, width, title, items, total, color) {
     context.stroke();
   });
   context.textAlign = "left";
+}
+
+async function deliverCanvasImage(canvas, filename, desktopMessage, mobileMessage) {
+  const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.92));
+  if (!blob) throw new Error("無法建立圖片");
+
+  const url = URL.createObjectURL(blob);
+  if (isMobileDevice()) {
+    showImagePreview(url, filename, mobileMessage);
+    showToast("圖片已產生，長按即可儲存");
+    return;
+  }
+
+  const link = document.createElement("a");
+  link.download = filename;
+  link.href = url;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  showToast(desktopMessage);
+}
+
+function isMobileDevice() {
+  return window.matchMedia("(max-width: 760px)").matches
+    || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
+function showImagePreview(url, filename, message) {
+  document.querySelector(".image-preview-overlay")?.remove();
+
+  const overlay = document.createElement("div");
+  overlay.className = "image-preview-overlay";
+  const sheet = document.createElement("div");
+  sheet.className = "image-preview-sheet";
+  sheet.setAttribute("role", "dialog");
+  sheet.setAttribute("aria-modal", "true");
+  sheet.setAttribute("aria-label", "圖片預覽");
+
+  const head = document.createElement("div");
+  head.className = "image-preview-head";
+  const title = document.createElement("strong");
+  title.textContent = message;
+  const closeButton = document.createElement("button");
+  closeButton.type = "button";
+  closeButton.textContent = "×";
+  closeButton.setAttribute("aria-label", "關閉預覽");
+  head.append(title, closeButton);
+
+  const hint = document.createElement("p");
+  hint.textContent = "iPhone：長按圖片選「加入照片」。Android：長按圖片選「下載圖片」或「儲存圖片」。";
+
+  const image = document.createElement("img");
+  image.src = url;
+  image.alt = "產生的圖片";
+
+  const fallbackLink = document.createElement("a");
+  fallbackLink.download = filename;
+  fallbackLink.href = url;
+  fallbackLink.textContent = "改用下載檔案";
+
+  sheet.append(head, hint, image, fallbackLink);
+  overlay.appendChild(sheet);
+
+  const close = () => {
+    overlay.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 500);
+  };
+
+  overlay.addEventListener("click", (event) => {
+    if (event.target === overlay) close();
+  });
+  closeButton.addEventListener("click", close);
+  document.body.appendChild(overlay);
 }
 
 function showToast(message) {
