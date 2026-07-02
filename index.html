@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="快速試算員工每月勞保、健保、勞退、實領薪資與雇主成本。">
+  <title>薪資勞健保試算</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#" aria-label="薪資小幫手首頁">
+      <span class="brand-mark">薪</span>
+      <span>薪資小幫手</span>
+    </a>
+    <span class="year-pill">2026 年費率</span>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <p class="eyebrow">PAYROLL CALCULATOR</p>
+        <h1>勞健保與薪資成本，<br>一次算清楚。</h1>
+        <p class="intro">輸入月薪與眷屬人數，即時查看員工實領、公司負擔與各項保費。</p>
+      </div>
+
+      <form class="calculator-form" id="calculatorForm">
+        <label class="field salary-field">
+          <span>員工月薪</span>
+          <span class="money-input">
+            <span>NT$</span>
+            <input id="salary" type="number" min="0" step="100" value="40000" inputmode="numeric" aria-describedby="minimumHint">
+          </span>
+          <small id="minimumHint">2026 年最低工資 NT$29,500</small>
+        </label>
+
+        <label class="field">
+          <span>健保依附眷屬</span>
+          <select id="dependents">
+            <option value="0">本人（無眷屬）</option>
+            <option value="1">本人＋1 人</option>
+            <option value="2">本人＋2 人</option>
+            <option value="3">本人＋3 人以上</option>
+          </select>
+        </label>
+
+        <div class="date-fields">
+          <label class="field">
+            <span>到職日</span>
+            <input class="date-input" id="hireDate" type="date">
+          </label>
+          <label class="field">
+            <span>離職日</span>
+            <input class="date-input" id="terminationDate" type="date">
+            <small>未離職可留空</small>
+          </label>
+          <label class="field">
+            <span>計算基準日</span>
+            <input class="date-input" id="calculationDate" type="date">
+          </label>
+        </div>
+
+        <label class="field">
+          <span>本期已休特休</span>
+          <span class="day-input">
+            <input id="usedLeaveDays" type="number" min="0" max="30" step="0.5" value="0" inputmode="decimal">
+            <span>天</span>
+          </span>
+          <small>可輸入半天，例如 2.5 天</small>
+        </label>
+      </form>
+    </section>
+
+    <section class="result-shell" aria-live="polite">
+      <div class="result-card" id="captureArea">
+        <div class="result-heading">
+          <div>
+            <p class="eyebrow">MONTHLY SUMMARY</p>
+            <h2>每月試算結果</h2>
+          </div>
+          <div class="insured-badge">
+            <span>投保級距</span>
+            <strong id="insuredSalary">NT$40,100</strong>
+          </div>
+        </div>
+
+        <div class="summary-grid">
+          <article class="summary-card employee">
+            <span>員工實領</span>
+            <strong id="takeHome">NT$38,375</strong>
+            <small>月薪－勞保自付－健保自付</small>
+          </article>
+          <article class="summary-card employer">
+            <span>雇主每月總成本</span>
+            <strong id="employerTotal">NT$47,855</strong>
+            <small>月薪＋雇主負擔勞健保＋勞退</small>
+          </article>
+        </div>
+
+        <div class="leave-overview">
+          <div>
+            <span>目前年資</span>
+            <strong id="serviceLength">請填到職日</strong>
+          </div>
+          <div>
+            <span>本期應有特休</span>
+            <strong><span id="entitledLeaveDays">0</span> 天</strong>
+          </div>
+          <div>
+            <span>本期已休</span>
+            <strong><span id="usedLeaveResult">0</span> 天</strong>
+          </div>
+          <div class="remaining">
+            <span>剩餘特休</span>
+            <strong><span id="remainingLeaveDays">0</span> 天</strong>
+          </div>
+        </div>
+
+        <div class="leave-result">
+          <div>
+            <span class="icon leave">休</span>
+            <p>
+              <strong>未休特休折算現金</strong>
+              <small>日工資 <span id="dailyWage">NT$1,333</span> × <span id="leaveDaysLabel">0</span> 天</small>
+            </p>
+          </div>
+          <strong id="leaveCash">NT$0</strong>
+        </div>
+
+        <div class="breakdown">
+          <div class="breakdown-head">
+            <span>費用項目</span>
+            <span>員工負擔</span>
+            <span>雇主負擔</span>
+          </div>
+          <div class="breakdown-row">
+            <div>
+              <span class="icon labor">勞</span>
+              <p><strong>勞工保險</strong><small id="laborDaysLabel">普通事故＋就業保險｜投保 30 天</small></p>
+            </div>
+            <strong id="laborEmployee">NT$1,003</strong>
+            <strong id="laborEmployer">NT$3,509</strong>
+          </div>
+          <div class="breakdown-row">
+            <div>
+              <span class="icon health">健</span>
+              <p><strong>全民健康保險</strong><small id="dependentLabel">本人</small></p>
+            </div>
+            <strong id="healthEmployee">NT$622</strong>
+            <strong id="healthEmployer">NT$1,940</strong>
+          </div>
+          <div class="breakdown-row">
+            <div>
+              <span class="icon pension">退</span>
+              <p><strong>勞工退休金</strong><small>雇主提繳 6%</small></p>
+            </div>
+            <strong class="muted">—</strong>
+            <strong id="pensionEmployer">NT$2,406</strong>
+          </div>
+          <div class="breakdown-total">
+            <span>每月保費與提繳合計</span>
+            <strong id="allContributions">NT$9,480</strong>
+          </div>
+        </div>
+
+        <div class="notes">
+          <p>試算未含職業災害保險、工資墊償基金及補充保費。</p>
+          <p>勞保到職月、離職月依計算基準日所在月份之投保日數估算；每月最多以 30 天計。</p>
+          <p>特休日數目前依勞動部「週年制」規則估算；留職停薪、遞延或曆年制須另行調整。</p>
+          <p>固定月薪制特休折現以月薪 ÷ 30 × 未休日數估算；變動薪資或特殊工時應另行確認。</p>
+          <p>實際金額仍以主管機關核定與繳款單為準。</p>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="secondary-button" id="resetButton" type="button">重設</button>
+        <button class="primary-button" id="downloadButton" type="button">
+          <span>下載試算圖</span>
+          <span aria-hidden="true">↓</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="payslip-section" id="payslipSection">
+      <div class="section-intro">
+        <p class="eyebrow">PAYSLIP GENERATOR</p>
+        <h2>產製員工薪資條</h2>
+        <p>基本薪資與勞健保會從上方試算自動帶入；其他加項、扣項可不限數量自由新增。</p>
+      </div>
+
+      <div class="payslip-workspace">
+        <div class="payslip-editor">
+          <div class="editor-block">
+            <h3>薪資條資料</h3>
+            <div class="payslip-meta-form">
+              <label class="field">
+                <span>公司名稱</span>
+                <input class="text-input" id="companyName" type="text" placeholder="例如：幸福有限公司">
+              </label>
+              <label class="field">
+                <span>員工姓名</span>
+                <input class="text-input" id="employeeName" type="text" placeholder="例如：王小明">
+              </label>
+              <label class="field">
+                <span>薪資月份</span>
+                <input class="date-input" id="payrollMonth" type="month">
+              </label>
+              <label class="field">
+                <span>發薪日</span>
+                <input class="date-input" id="payDate" type="date">
+              </label>
+            </div>
+          </div>
+
+          <div class="editor-block">
+            <div class="editor-heading">
+              <div>
+                <h3>加項</h3>
+                <small>例如：三節獎金、加班費、津貼</small>
+              </div>
+              <button class="add-item-button" id="addEarningButton" type="button">＋ 新增加項</button>
+            </div>
+            <div class="custom-items" id="earningItems"></div>
+          </div>
+
+          <div class="editor-block">
+            <div class="editor-heading">
+              <div>
+                <h3>扣項</h3>
+                <small>例如：遲到扣薪、請假扣薪、福利金</small>
+              </div>
+              <button class="add-item-button deduction" id="addDeductionButton" type="button">＋ 新增扣項</button>
+            </div>
+            <div class="custom-items" id="deductionItems"></div>
+          </div>
+        </div>
+
+        <div class="payslip-preview-wrap">
+          <div class="payslip-paper" id="payslipPaper">
+            <div class="payslip-paper-head">
+              <div>
+                <span id="previewCompany">公司名稱</span>
+                <h3>薪資明細表</h3>
+              </div>
+              <strong id="previewMonth">2026 年 6 月</strong>
+            </div>
+
+            <div class="employee-strip">
+              <div><span>員工姓名</span><strong id="previewEmployee">未填寫</strong></div>
+              <div><span>發薪日</span><strong id="previewPayDate">—</strong></div>
+            </div>
+
+            <div class="payslip-columns">
+              <div class="payslip-column">
+                <div class="payslip-column-title"><span>應發項目</span><strong id="earningTotal">NT$40,000</strong></div>
+                <div id="earningPreview"></div>
+              </div>
+              <div class="payslip-column deduction-column">
+                <div class="payslip-column-title"><span>應扣項目</span><strong id="deductionTotal">NT$1,625</strong></div>
+                <div id="deductionPreview"></div>
+              </div>
+            </div>
+
+            <div class="net-pay">
+              <span>本期實發金額</span>
+              <strong id="netPay">NT$38,375</strong>
+            </div>
+            <p class="payslip-footnote">本薪資條由薪資小幫手產製，金額請以公司實際薪資紀錄為準。</p>
+          </div>
+
+          <div class="actions payslip-actions">
+            <button class="secondary-button" id="resetPayslipButton" type="button">清除自訂項目</button>
+            <button class="primary-button" id="downloadPayslipButton" type="button">
+              <span>下載薪資條</span>
+              <span aria-hidden="true">↓</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="explain">
+      <p class="eyebrow">HOW IT WORKS</p>
+      <h2>這份試算包含什麼？</h2>
+      <div class="explain-grid">
+        <article><span>01</span><h3>員工負擔</h3><p>從月薪扣除勞保與健保自付額，得到預估實領薪資。</p></article>
+        <article><span>02</span><h3>雇主負擔</h3><p>整理雇主應負擔的勞保、健保與 6% 勞工退休金。</p></article>
+        <article><span>03</span><h3>特休折現</h3><p>固定月薪制依月薪除以 30，乘上未休特休日數估算。</p></article>
+      </div>
+    </section>
+  </main>
+
+  <footer>本工具僅供快速估算，不構成會計、稅務或法律建議。</footer>
+  <div class="toast" id="toast" role="status">試算圖已下載</div>
+  <script src="app.js"></script>
+</body>
+</html>
