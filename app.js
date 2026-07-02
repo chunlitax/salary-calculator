@@ -92,6 +92,7 @@ function calculate() {
   $("dailyWage").textContent = money(dailyWage);
   $("leaveDaysLabel").textContent = unusedLeaveDays.toLocaleString("zh-TW");
   $("leaveCash").textContent = money(leaveCash);
+  $("leavePeriodRange").textContent = leave.periodText;
   $("serviceLength").textContent = leave.serviceText;
   $("entitledLeaveDays").textContent = formatDays(leave.entitled);
   $("usedLeaveResult").textContent = formatDays(leave.used);
@@ -215,13 +216,13 @@ function isSameDate(left, right) {
 
 function calculateAnnualLeave(hireValue, calculationValue, usedDays) {
   if (!hireValue || !calculationValue) {
-    return { entitled: 0, used: usedDays, remaining: 0, serviceText: "請填到職日" };
+    return { entitled: 0, used: usedDays, remaining: 0, serviceText: "請填到職日", periodText: "請填到職日" };
   }
 
   const hire = parseLocalDate(hireValue);
   const calculation = parseLocalDate(calculationValue);
   if (!hire || !calculation || calculation < hire) {
-    return { entitled: 0, used: usedDays, remaining: 0, serviceText: "日期有誤" };
+    return { entitled: 0, used: usedDays, remaining: 0, serviceText: "日期有誤", periodText: "日期有誤" };
   }
 
   let years = calculation.getFullYear() - hire.getFullYear();
@@ -233,12 +234,27 @@ function calculateAnnualLeave(hireValue, calculationValue, usedDays) {
 
   const months = completeMonthsBetween(anniversary, calculation);
   const entitled = annualLeaveDays(years, months);
+  const period = annualLeavePeriod(hire, years, months);
   return {
     entitled,
     used: usedDays,
     remaining: Math.max(0, entitled - usedDays),
-    serviceText: `${years} 年 ${months} 個月`
+    serviceText: `${years} 年 ${months} 個月`,
+    periodText: period
   };
+}
+
+function annualLeavePeriod(hire, years, months) {
+  if (years === 0 && months < 6) return "尚未滿 6 個月";
+
+  const start = years === 0
+    ? addMonths(hire, 6)
+    : addYears(hire, years);
+  const end = years === 0
+    ? addDays(addYears(hire, 1), -1)
+    : addDays(addYears(hire, years + 1), -1);
+
+  return `${formatShortDate(start)}－${formatShortDate(end)}`;
 }
 
 function annualLeaveDays(years, months) {
@@ -278,6 +294,18 @@ function addYears(date, years) {
   return result;
 }
 
+function addMonths(date, months) {
+  const result = new Date(date.getFullYear(), date.getMonth() + months, date.getDate());
+  if (result.getMonth() !== (date.getMonth() + months) % 12) result.setDate(0);
+  return result;
+}
+
+function addDays(date, days) {
+  const result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result;
+}
+
 function completeMonthsBetween(start, end) {
   let months = (end.getFullYear() - start.getFullYear()) * 12 + end.getMonth() - start.getMonth();
   if (end.getDate() < start.getDate()) months -= 1;
@@ -286,6 +314,10 @@ function completeMonthsBetween(start, end) {
 
 function formatDays(value) {
   return Number(value).toLocaleString("zh-TW", { maximumFractionDigits: 1 });
+}
+
+function formatShortDate(date) {
+  return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
 }
 
 function reset() {

@@ -330,7 +330,7 @@ h2 { margin: 0; font-size: clamp(28px, 4vw, 40px); letter-spacing: -.03em; }
 .leave-overview {
   margin-top: 16px;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: 1.35fr repeat(4, 1fr);
   border: 1px solid var(--line);
   border-radius: 18px;
   overflow: hidden;
@@ -349,6 +349,7 @@ h2 { margin: 0; font-size: clamp(28px, 4vw, 40px); letter-spacing: -.03em; }
 .leave-overview strong span { display: inline; color: inherit; font-size: inherit; }
 .leave-overview .remaining { background: rgba(15, 118, 94, .08); }
 .leave-overview .remaining strong { color: var(--green); }
+.leave-overview .period strong { font-size: 17px; }
 
 .leave-result {
   margin-top: 16px;
@@ -830,6 +831,7 @@ footer small {
   .summary-grid, .explain-grid { grid-template-columns: 1fr; }
   .summary-card { min-height: 165px; }
   .leave-overview { grid-template-columns: 1fr 1fr; }
+  .leave-overview .period { grid-column: 1 / -1; }
   .leave-overview > div:nth-child(2) { border-right: 0; }
   .leave-overview > div:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
 }
