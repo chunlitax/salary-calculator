@@ -67,6 +67,7 @@ function calculate() {
   const dailyWage = salary / 30;
   const leaveCash = Math.round(dailyWage * unusedLeaveDays);
 
+  updateMinimumWageHint(salary);
   updateInsuranceScale(salary, Math.max(laborBase, healthBase));
   $("takeHome").textContent = money(takeHome);
   $("employerTotal").textContent = money(employerTotal);
@@ -88,6 +89,15 @@ function calculate() {
   $("remainingLeaveDays").textContent = formatDays(leave.remaining);
   syncPayslipFromCalculator();
   updatePayslip();
+}
+
+function updateMinimumWageHint(salary) {
+  const hint = $("minimumHint");
+  const belowMinimumWage = salary > 0 && salary < MINIMUM_WAGE;
+  hint.classList.toggle("warning", belowMinimumWage);
+  hint.textContent = belowMinimumWage
+    ? "低於 2026 年最低工資 NT$29,500"
+    : "2026 年最低工資 NT$29,500";
 }
 
 function updateInsuranceScale(salary, insuredBase) {
@@ -293,7 +303,7 @@ async function downloadResult() {
 
     context.fillStyle = "#17242b";
     context.font = '800 42px "Noto Sans TC", sans-serif';
-    context.fillText("薪資勞健保試算", 96, 166);
+    context.fillText("勞健保試算", 96, 166);
     context.fillStyle = "#68767d";
     context.font = '700 16px "Noto Sans TC", sans-serif';
     context.fillText(TOOL_NAME, 96, 196);
@@ -305,41 +315,26 @@ async function downloadResult() {
     drawSummaryCard(context, 612, 210, 492, 224, "#17242b",
       "雇主每月總成本", $("employerTotal").textContent, "月薪＋雇主負擔勞健保＋勞退");
 
-    roundRect(context, 96, 462, 1008, 100, 18, "#fff7e8");
-    context.fillStyle = "#9b5e08";
-    context.font = '800 20px "Noto Sans TC", sans-serif';
-    context.fillText("未休特休折算現金", 124, 502);
-    context.font = '500 14px "Noto Sans TC", sans-serif';
-    context.fillText(
-      `應有 ${$("entitledLeaveDays").textContent} 天｜已休 ${$("usedLeaveResult").textContent} 天｜剩餘 ${$("leaveDaysLabel").textContent} 天`,
-      124,
-      532
-    );
-    context.textAlign = "right";
-    context.font = '800 34px "Noto Sans TC", sans-serif';
-    context.fillText($("leaveCash").textContent, 1076, 520);
-    context.textAlign = "left";
-
     context.fillStyle = "#68767d";
     context.font = '600 15px "Noto Sans TC", sans-serif';
-    context.fillText(`輸入月薪 ${salaryText}｜${$("dependentLabel").textContent}`, 96, 608);
+    context.fillText(`輸入月薪 ${salaryText}｜${$("dependentLabel").textContent}`, 96, 496);
 
     context.strokeStyle = "#dfe7e5";
     context.lineWidth = 1;
     context.beginPath();
-    context.moveTo(96, 642);
-    context.lineTo(1104, 642);
+    context.moveTo(96, 530);
+    context.lineTo(1104, 530);
     context.stroke();
 
     context.fillStyle = "#68767d";
     context.font = '700 14px "Noto Sans TC", sans-serif';
-    context.fillText("費用項目", 96, 680);
+    context.fillText("費用項目", 96, 568);
     context.textAlign = "right";
-    context.fillText("員工負擔", 830, 680);
-    context.fillText("雇主負擔", 1104, 680);
+    context.fillText("員工負擔", 830, 568);
+    context.fillText("雇主負擔", 1104, 568);
 
     rows.forEach((row, index) => {
-      const y = 732 + index * 112;
+      const y = 620 + index * 112;
       context.textAlign = "left";
       context.fillStyle = "#17242b";
       context.font = '700 22px "Noto Sans TC", sans-serif';
@@ -357,27 +352,27 @@ async function downloadResult() {
       context.stroke();
     });
 
-    roundRect(context, 96, 1034, 492, 56, 12, "rgba(15,118,94,.08)");
-    roundRect(context, 612, 1034, 492, 56, 12, "rgba(23,36,43,.06)");
+    roundRect(context, 96, 922, 492, 56, 12, "rgba(15,118,94,.08)");
+    roundRect(context, 612, 922, 492, 56, 12, "rgba(23,36,43,.06)");
     context.textAlign = "left";
     context.fillStyle = "#17242b";
     context.font = '800 18px "Noto Sans TC", sans-serif';
-    context.fillText("員工自付合計", 118, 1070);
-    context.fillText("雇主負擔合計", 634, 1070);
+    context.fillText("員工自付合計", 118, 958);
+    context.fillText("雇主負擔合計", 634, 958);
     context.textAlign = "right";
     context.fillStyle = "#0f765e";
     context.font = '800 26px "Noto Sans TC", sans-serif';
-    context.fillText($("employeeContributionTotal").textContent, 566, 1070);
+    context.fillText($("employeeContributionTotal").textContent, 566, 958);
     context.fillStyle = "#17242b";
-    context.fillText($("employerContributionTotal").textContent, 1082, 1070);
+    context.fillText($("employerContributionTotal").textContent, 1082, 958);
 
-    roundRect(context, 96, 1098, 1008, 84, 12, "#f3f6f4");
+    roundRect(context, 96, 994, 1008, 84, 12, "#f3f6f4");
     context.textAlign = "left";
     context.fillStyle = "#68767d";
     context.font = '500 13px "Noto Sans TC", sans-serif';
-    context.fillText("本工具未納入薪資所得扣繳試算；是否扣繳及扣繳金額，請依相關稅務規定辦理。", 118, 1127);
-    context.fillText("特休折現以固定月薪 ÷ 30 × 未休日數估算；其他金額仍以主管機關核定為準。", 118, 1149);
-    context.fillText(COPYRIGHT_TEXT, 118, 1171);
+    context.fillText("本工具未納入薪資所得扣繳試算；是否扣繳及扣繳金額，請依相關稅務規定辦理。", 118, 1023);
+    context.fillText("試算未含職業災害保險、工資墊償基金及補充保費；實際金額仍以主管機關核定為準。", 118, 1045);
+    context.fillText(COPYRIGHT_TEXT, 118, 1067);
 
     await deliverCanvasImage(
       canvas,

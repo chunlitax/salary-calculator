@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20260702-save-image">
+  <link rel="stylesheet" href="styles.css?v=20260702-minimum-warning">
 </head>
 <body>
   <header class="site-header">
@@ -80,7 +80,7 @@
         <div class="result-heading">
           <div>
             <p class="eyebrow">MONTHLY SUMMARY</p>
-            <h2>每月試算結果</h2>
+            <h2>勞健保試算</h2>
           </div>
           <div class="insured-badge">
             <span>投保級距</span>
@@ -110,36 +110,6 @@
             <strong id="employerTotal">NT$47,855</strong>
             <small>月薪＋雇主負擔勞健保＋勞退</small>
           </article>
-        </div>
-
-        <div class="leave-overview">
-          <div>
-            <span>目前年資</span>
-            <strong id="serviceLength">請填到職日</strong>
-          </div>
-          <div>
-            <span>本期應有特休</span>
-            <strong><span id="entitledLeaveDays">0</span> 天</strong>
-          </div>
-          <div>
-            <span>本期已休</span>
-            <strong><span id="usedLeaveResult">0</span> 天</strong>
-          </div>
-          <div class="remaining">
-            <span>剩餘特休</span>
-            <strong><span id="remainingLeaveDays">0</span> 天</strong>
-          </div>
-        </div>
-
-        <div class="leave-result">
-          <div>
-            <span class="icon leave">休</span>
-            <p>
-              <strong>未休特休折算現金</strong>
-              <small>日工資 <span id="dailyWage">NT$1,333</span> × <span id="leaveDaysLabel">0</span> 天</small>
-            </p>
-          </div>
-          <strong id="leaveCash">NT$0</strong>
         </div>
 
         <div class="breakdown">
@@ -188,8 +158,6 @@
           <p>試算未含職業災害保險、工資墊償基金及補充保費。</p>
           <p>本工具未納入薪資所得扣繳試算；是否扣繳及扣繳金額，請依實際情況確認相關稅務規定。</p>
           <p>勞保到職月、離職月依發薪日所在月份之投保日數估算；每月最多以 30 天計。</p>
-          <p>特休日數目前依勞動部「週年制」規則估算；留職停薪、遞延或曆年制須另行調整。</p>
-          <p>固定月薪制特休折現以月薪 ÷ 30 × 未休日數估算；變動薪資或特殊工時應另行確認。</p>
           <p>實際金額仍以主管機關核定與繳款單為準。</p>
         </div>
       </div>
@@ -200,6 +168,50 @@
           <span>下載試算圖</span>
           <span aria-hidden="true">↓</span>
         </button>
+      </div>
+    </section>
+
+    <section class="leave-section">
+      <div class="section-intro compact">
+        <p class="eyebrow">ANNUAL LEAVE REFERENCE</p>
+        <h2>特休折現參考</h2>
+        <p>依到職日、發薪日與已休天數估算特休天數與未休折現金額；僅供薪資結算時快速參考。</p>
+      </div>
+
+      <div class="leave-card">
+        <div class="leave-overview">
+          <div>
+            <span>目前年資</span>
+            <strong id="serviceLength">請填到職日</strong>
+          </div>
+          <div>
+            <span>本期應有特休</span>
+            <strong><span id="entitledLeaveDays">0</span> 天</strong>
+          </div>
+          <div>
+            <span>本期已休</span>
+            <strong><span id="usedLeaveResult">0</span> 天</strong>
+          </div>
+          <div class="remaining">
+            <span>剩餘特休</span>
+            <strong><span id="remainingLeaveDays">0</span> 天</strong>
+          </div>
+        </div>
+
+        <div class="leave-result">
+          <div>
+            <span class="icon leave">休</span>
+            <p>
+              <strong>未休特休折算現金</strong>
+              <small>日工資 <span id="dailyWage">NT$1,333</span> × <span id="leaveDaysLabel">0</span> 天</small>
+            </p>
+          </div>
+          <strong id="leaveCash">NT$0</strong>
+        </div>
+        <div class="leave-reference-note">
+          <p>特休日數目前依勞動部「週年制」規則估算；留職停薪、遞延或曆年制須另行調整。</p>
+          <p>固定月薪制特休折現以月薪 ÷ 30 × 未休日數估算；變動薪資或特殊工時應另行確認。</p>
+        </div>
       </div>
     </section>
 
@@ -318,6 +330,6 @@
     <small>本工具僅供快速估算，不構成會計、稅務或法律建議。未經授權請勿重製、改作或移除品牌標示。</small>
   </footer>
   <div class="toast" id="toast" role="status">試算圖已下載</div>
-  <script src="app.js?v=20260702-save-image"></script>
+  <script src="app.js?v=20260702-minimum-warning"></script>
 </body>
 </html>
