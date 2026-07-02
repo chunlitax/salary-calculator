@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20260702-payslip-editable">
+  <link rel="stylesheet" href="styles.css?v=20260702-salary-month">
 </head>
 <body>
   <header class="site-header">
@@ -57,16 +57,16 @@
 
         <div class="period-fields">
           <label class="field">
+            <span>薪資月份</span>
+            <input class="date-input" id="salaryMonth" type="month">
+          </label>
+          <label class="field">
             <span>到職日</span>
             <input class="date-input" id="hireDate" type="date">
           </label>
           <label class="field">
             <span class="label-line">離職日 <small>未離職可留空</small></span>
             <input class="date-input" id="terminationDate" type="date">
-          </label>
-          <label class="field">
-            <span>發薪日</span>
-            <input class="date-input" id="calculationDate" type="date">
           </label>
           <label class="field">
             <span class="label-line">本期已休特休 <small>可輸入小數點</small></span>
@@ -161,7 +161,8 @@
         <div class="notes">
           <p>試算未含職業災害保險、工資墊償基金及補充保費。</p>
           <p>本工具未納入薪資所得扣繳試算；是否扣繳及扣繳金額，請依實際情況確認相關稅務規定。</p>
-          <p>勞保到職月、離職月依發薪日所在月份之投保日數估算；每月最多以 30 天計。</p>
+          <p>勞保到職月、離職月依薪資月份之投保日數估算；每月最多以 30 天計。</p>
+          <p>健保依薪資月份最後一天是否仍在公司投保估算；月底未在保者，本工具以 0 元列示。</p>
           <p>實際金額仍以主管機關核定與繳款單為準。</p>
         </div>
       </div>
@@ -179,7 +180,7 @@
       <div class="section-intro compact">
         <p class="eyebrow">ANNUAL LEAVE REFERENCE</p>
         <h2>特休折現參考</h2>
-        <p>依到職日、發薪日與已休天數估算特休天數與未休折現金額；僅供薪資結算時快速參考。</p>
+        <p>依到職日、薪資月份與已休天數估算特休天數與未休折現金額；僅供薪資結算時快速參考。</p>
       </div>
 
       <div class="leave-card">
@@ -334,6 +335,6 @@
     <small>本工具僅供快速估算，不構成會計、稅務或法律建議。未經授權請勿重製、改作或移除品牌標示。</small>
   </footer>
   <div class="toast" id="toast" role="status">試算圖已下載</div>
-  <script src="app.js?v=20260702-payslip-editable"></script>
+  <script src="app.js?v=20260702-salary-month"></script>
 </body>
 </html>
