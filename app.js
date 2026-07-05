@@ -129,7 +129,7 @@ function updateMinimumWageHint(salary) {
   hint.classList.toggle("warning", belowMinimumWage);
   hint.textContent = belowMinimumWage
     ? "低於 2026 年最低工資 NT$29,500"
-    : "2026 年最低工資 NT$29,500";
+    : "2026 年最低工資 NT$29,500｜勞保投保級距上限 NT$45,800";
 }
 
 function updateInsuranceScale(salary, insuredBase) {
