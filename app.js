@@ -60,7 +60,8 @@ function calculate() {
   const leave = calculateAnnualLeave(
     $("hireDate").value,
     monthEndDateValue($("salaryMonth").value),
-    Math.max(0, Number($("usedLeaveDays").value) || 0)
+    Math.max(0, Number($("usedLeaveDays").value) || 0),
+    $("leaveSystem").value
   );
   const unusedLeaveDays = leave.remaining;
   const laborBase = bracketFor(salary, laborBrackets);
@@ -236,7 +237,7 @@ function isSameDate(left, right) {
     && left.getDate() === right.getDate();
 }
 
-function calculateAnnualLeave(hireValue, calculationValue, usedDays) {
+function calculateAnnualLeave(hireValue, calculationValue, usedDays, system = "anniversary") {
   if (!hireValue || !calculationValue) {
     return { entitled: 0, used: usedDays, remaining: 0, serviceText: "請填到職日", periodText: "請填到職日" };
   }
@@ -247,6 +248,14 @@ function calculateAnnualLeave(hireValue, calculationValue, usedDays) {
     return { entitled: 0, used: usedDays, remaining: 0, serviceText: "日期有誤", periodText: "日期有誤" };
   }
 
+  if (system === "calendar") {
+    return calculateCalendarYearLeave(hire, calculation, usedDays);
+  }
+
+  return calculateAnniversaryLeave(hire, calculation, usedDays);
+}
+
+function calculateAnniversaryLeave(hire, calculation, usedDays) {
   let years = calculation.getFullYear() - hire.getFullYear();
   let anniversary = addYears(hire, years);
   if (calculation < anniversary) {
@@ -264,6 +273,53 @@ function calculateAnnualLeave(hireValue, calculationValue, usedDays) {
     serviceText: `${years} 年 ${months} 個月`,
     periodText: period
   };
+}
+
+function calculateCalendarYearLeave(hire, calculation, usedDays) {
+  const yearStart = new Date(calculation.getFullYear(), 0, 1);
+  const yearEnd = new Date(calculation.getFullYear(), 11, 31);
+  const entitled = annualLeaveCalendarDays(hire, yearStart, yearEnd);
+
+  return {
+    entitled,
+    used: usedDays,
+    remaining: Math.max(0, entitled - usedDays),
+    serviceText: serviceLengthText(hire, calculation),
+    periodText: `${formatShortDate(yearStart)}－${formatShortDate(yearEnd)}`
+  };
+}
+
+function annualLeaveCalendarDays(hire, yearStart, yearEnd) {
+  let total = 0;
+
+  for (let serviceYears = 0; serviceYears <= 60; serviceYears += 1) {
+    const periodStart = serviceYears === 0 ? addMonths(hire, 6) : addYears(hire, serviceYears);
+    const periodEnd = serviceYears === 0 ? addDays(addYears(hire, 1), -1) : addDays(addYears(hire, serviceYears + 1), -1);
+    const entitlement = annualLeaveDays(serviceYears, serviceYears === 0 ? 6 : 0);
+    if (!entitlement) continue;
+    if (periodStart > yearEnd) break;
+    if (periodEnd < yearStart) continue;
+
+    const overlapStart = periodStart > yearStart ? periodStart : yearStart;
+    const overlapEnd = periodEnd < yearEnd ? periodEnd : yearEnd;
+    const overlapDays = daysBetweenInclusive(overlapStart, overlapEnd);
+    const periodDays = daysBetweenInclusive(periodStart, periodEnd);
+    total += entitlement * (overlapDays / periodDays);
+  }
+
+  return roundToHalfDay(total);
+}
+
+function serviceLengthText(hire, calculation) {
+  let years = calculation.getFullYear() - hire.getFullYear();
+  let anniversary = addYears(hire, years);
+  if (calculation < anniversary) {
+    years -= 1;
+    anniversary = addYears(hire, years);
+  }
+
+  const months = completeMonthsBetween(anniversary, calculation);
+  return `${years} 年 ${months} 個月`;
 }
 
 function annualLeavePeriod(hire, years, months) {
@@ -328,6 +384,17 @@ function addDays(date, days) {
   return result;
 }
 
+function daysBetweenInclusive(start, end) {
+  const dayMs = 24 * 60 * 60 * 1000;
+  const startDate = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+  const endDate = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+  return Math.max(0, Math.round((endDate - startDate) / dayMs) + 1);
+}
+
+function roundToHalfDay(value) {
+  return Math.round((Number(value) || 0) * 2) / 2;
+}
+
 function completeMonthsBetween(start, end) {
   let months = (end.getFullYear() - start.getFullYear()) * 12 + end.getMonth() - start.getMonth();
   if (end.getDate() < start.getDate()) months -= 1;
@@ -350,6 +417,7 @@ function reset() {
   $("hireDate").value = "";
   $("terminationDate").value = "";
   $("usedLeaveDays").value = "0";
+  $("leaveSystem").value = "anniversary";
   calculate();
   $("salary").focus();
 }
@@ -632,19 +700,23 @@ function drawMobileBreakdownRow(context, x, y, width, height, row) {
   context.fillText(row.employer, x + width - 26, y + 58);
   context.textBaseline = "alphabetic";
 
-  if (!row.details) return;
+  if (!row.details) {
+    context.textAlign = "left";
+    return;
+  }
 
   roundRect(context, x + 24, y + 98, width - 48, 144, 16, "rgba(23,36,43,.035)");
   context.fillStyle = "#0f765e";
   context.font = '800 18px "Noto Sans TC", sans-serif';
-  context.fillText("細項", x + 48, y + 130);
+  context.textAlign = "left";
+  context.fillText("勞保細項（員工／雇主）", x + 48, y + 130);
 
   row.details.forEach((detail, index) => {
-    const detailY = y + 130 + index * 34;
+    const detailY = y + 164 + index * 30;
     context.fillStyle = "#68767d";
     context.font = '700 18px "Noto Sans TC", sans-serif';
     context.textAlign = "left";
-    context.fillText(detail[0], x + 138, detailY);
+    context.fillText(detail[0], x + 48, detailY);
     context.fillStyle = "#17242b";
     context.font = '800 19px "Noto Sans TC", sans-serif';
     context.textAlign = "right";
@@ -655,6 +727,7 @@ function drawMobileBreakdownRow(context, x, y, width, height, row) {
 
 function drawMobileTotalCard(context, x, y, width, employeeTotal, employerTotal) {
   roundRect(context, x, y, width, 112, 18, "#f3f6f4");
+  context.textAlign = "left";
   context.fillStyle = "#17242b";
   context.font = '800 22px "Noto Sans TC", sans-serif';
   context.fillText("員工自付合計", x + 28, y + 44);
@@ -912,7 +985,8 @@ function exportPayslipConfig() {
       salaryMonth: $("salaryMonth").value,
       hireDate: $("hireDate").value,
       terminationDate: $("terminationDate").value,
-      usedLeaveDays: $("usedLeaveDays").value
+      usedLeaveDays: $("usedLeaveDays").value,
+      leaveSystem: $("leaveSystem").value
     },
     payslip: {
       companyName: $("companyName").value,
@@ -954,6 +1028,7 @@ async function importPayslipConfig(event) {
     if (calculator.hireDate !== undefined) $("hireDate").value = calculator.hireDate;
     if (calculator.terminationDate !== undefined) $("terminationDate").value = calculator.terminationDate;
     if (calculator.usedLeaveDays !== undefined) $("usedLeaveDays").value = calculator.usedLeaveDays;
+    if (calculator.leaveSystem !== undefined) $("leaveSystem").value = calculator.leaveSystem;
 
     $("companyName").value = payslip.companyName || "";
     $("employeeName").value = payslip.employeeName || "";
@@ -1345,6 +1420,7 @@ $("salaryMonth").addEventListener("change", handleSalaryMonthChange);
 $("hireDate").addEventListener("change", calculate);
 $("terminationDate").addEventListener("change", calculate);
 $("usedLeaveDays").addEventListener("input", calculate);
+$("leaveSystem").addEventListener("change", calculate);
 $("resetButton").addEventListener("click", reset);
 $("downloadButton").addEventListener("click", downloadResult);
 $("companyName").addEventListener("input", updatePayslip);

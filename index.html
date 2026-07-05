@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20260705-mobile-output">
+  <link rel="stylesheet" href="styles.css?v=20260705-leave-system">
 </head>
 <body>
   <header class="site-header">
@@ -212,6 +212,14 @@
       </div>
 
       <div class="leave-card">
+        <label class="field leave-system-field">
+          <span>特休制度</span>
+          <select id="leaveSystem">
+            <option value="anniversary">週年制（依到職日週年）</option>
+            <option value="calendar">曆年制（每年 1/1～12/31）</option>
+          </select>
+        </label>
+
         <div class="leave-overview">
           <div class="period">
             <span>本期日期區間</span>
@@ -246,7 +254,7 @@
           <strong id="leaveCash">NT$0</strong>
         </div>
         <div class="leave-reference-note">
-          <p>特休日數目前依勞動部「週年制」規則估算；留職停薪、遞延或曆年制須另行調整。</p>
+          <p>特休日數可切換週年制或曆年制；曆年制依薪資月份所在年度與各特休週年期間重疊比例估算。</p>
           <p>固定月薪制特休折現以月薪 ÷ 30 × 未休日數估算；變動薪資或特殊工時應另行確認。</p>
         </div>
       </div>
@@ -370,6 +378,6 @@
     <small>本工具僅供快速估算，不構成會計、稅務或法律建議。未經授權請勿重製、改作或移除品牌標示。</small>
   </footer>
   <div class="toast" id="toast" role="status">試算圖已下載</div>
-  <script src="app.js?v=20260705-mobile-output"></script>
+  <script src="app.js?v=20260705-leave-system"></script>
 </body>
 </html>
