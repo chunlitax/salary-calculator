@@ -482,10 +482,11 @@ async function downloadResult() {
     context.fillText(COPYRIGHT_TEXT, 118, 1136);
 
     await deliverCanvasImage(
-      canvas,
+      createResultWallpaperCanvas(salaryText, insuranceLabels, insuranceMarker, rows),
       `薪資勞健保試算-${new Date().toISOString().slice(0, 10)}.jpg`,
       "試算圖已下載",
-      "長按圖片即可儲存到手機相簿"
+      "長按圖片即可儲存到手機相簿",
+      true
     );
   } catch (error) {
     console.error(error);
@@ -526,6 +527,145 @@ function drawInputSalaryCard(context, x, y, width, height, salaryText, dependent
   context.fillStyle = "#68767d";
   context.font = '600 12px "Noto Sans TC", sans-serif';
   context.fillText(dependentText, x + 26, y + 136);
+}
+
+function createResultWallpaperCanvas(salaryText, insuranceLabels, insuranceMarker, rows) {
+  const width = 1080;
+  const height = 1920;
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext("2d");
+  context.textBaseline = "alphabetic";
+
+  context.fillStyle = "#f3f0e8";
+  context.fillRect(0, 0, width, height);
+  drawDots(context, width, height);
+
+  roundRect(context, 44, 56, 992, 1808, 34, "#fffefa");
+
+  context.fillStyle = "#0f765e";
+  context.font = '800 24px "Noto Sans TC", sans-serif';
+  context.fillText(OFFICE_NAME, 86, 118);
+  context.fillStyle = "#17242b";
+  context.font = '800 58px "Noto Sans TC", sans-serif';
+  context.fillText("勞健保試算", 86, 190);
+  context.fillStyle = "#68767d";
+  context.font = '700 22px "Noto Sans TC", sans-serif';
+  context.fillText(TOOL_NAME, 86, 230);
+
+  drawInsuranceScale(context, 586, 116, 390, insuranceLabels, insuranceMarker);
+
+  drawMobileInfoCard(context, 86, 284, 908, 138, "輸入月薪", salaryText, $("dependentLabel").textContent);
+  drawMobileSummaryCard(context, 86, 446, 908, 168, "#0f765e",
+    "員工實領", $("takeHome").textContent, "月薪－勞保自付－健保自付");
+  drawMobileSummaryCard(context, 86, 638, 908, 168, "#17242b",
+    "雇主每月總成本", $("employerTotal").textContent, "月薪＋雇主負擔勞健保＋勞退");
+
+  context.fillStyle = "#68767d";
+  context.font = '800 22px "Noto Sans TC", sans-serif';
+  context.fillText("費用項目", 86, 875);
+  context.textAlign = "right";
+  context.fillText("員工負擔", 742, 875);
+  context.fillText("雇主負擔", 994, 875);
+  context.textAlign = "left";
+
+  let y = 914;
+  rows.forEach((row) => {
+    const rowHeight = row.details ? 270 : 124;
+    drawMobileBreakdownRow(context, 86, y, 908, rowHeight, row);
+    y += rowHeight + 16;
+  });
+
+  drawMobileTotalCard(context, 86, y + 10, 908, $("employeeContributionTotal").textContent, $("employerContributionTotal").textContent);
+
+  roundRect(context, 86, y + 154, 908, 150, 18, "#f3f6f4");
+  context.fillStyle = "#68767d";
+  context.font = '500 18px "Noto Sans TC", sans-serif';
+  context.fillText("本工具未納入薪資所得扣繳試算；是否扣繳及扣繳金額，請依相關稅務規定辦理。", 112, y + 196);
+  context.fillText("職災保險依輸入費率估算；試算未含工資墊償基金及補充保費。", 112, y + 228);
+  context.fillText(COPYRIGHT_TEXT, 112, y + 260);
+
+  return canvas;
+}
+
+function drawMobileInfoCard(context, x, y, width, height, label, amount, note) {
+  roundRect(context, x, y, width, height, 22, "#f3f6f4");
+  context.fillStyle = "#0f765e";
+  context.font = '800 22px "Noto Sans TC", sans-serif';
+  context.fillText(label, x + 28, y + 42);
+  context.fillStyle = "#17242b";
+  context.font = '800 46px "Noto Sans TC", sans-serif';
+  context.fillText(amount, x + 28, y + 98);
+  context.fillStyle = "#68767d";
+  context.font = '700 18px "Noto Sans TC", sans-serif';
+  context.fillText(note, x + 28, y + 124);
+}
+
+function drawMobileSummaryCard(context, x, y, width, height, color, label, amount, note) {
+  roundRect(context, x, y, width, height, 24, color);
+  context.fillStyle = "rgba(255,255,255,.85)";
+  context.font = '800 24px "Noto Sans TC", sans-serif';
+  context.fillText(label, x + 32, y + 48);
+  context.fillStyle = "#ffffff";
+  context.font = '800 56px "Noto Sans TC", sans-serif';
+  context.fillText(amount, x + 32, y + 116);
+  context.fillStyle = "rgba(255,255,255,.72)";
+  context.font = '600 18px "Noto Sans TC", sans-serif';
+  context.fillText(note, x + 32, y + 146);
+}
+
+function drawMobileBreakdownRow(context, x, y, width, height, row) {
+  roundRect(context, x, y, width, height, 18, "#ffffff");
+  context.strokeStyle = "#dfe7e5";
+  context.strokeRect(x, y, width, height);
+
+  context.textBaseline = "middle";
+  context.textAlign = "left";
+  context.fillStyle = "#17242b";
+  context.font = '800 30px "Noto Sans TC", sans-serif';
+  context.fillText(row.name, x + 26, y + 58);
+
+  context.textAlign = "right";
+  context.font = '800 30px "Noto Sans TC", sans-serif';
+  context.fillText(row.employee, x + width - 252, y + 58);
+  context.fillText(row.employer, x + width - 26, y + 58);
+  context.textBaseline = "alphabetic";
+
+  if (!row.details) return;
+
+  roundRect(context, x + 24, y + 98, width - 48, 144, 16, "rgba(23,36,43,.035)");
+  context.fillStyle = "#0f765e";
+  context.font = '800 18px "Noto Sans TC", sans-serif';
+  context.fillText("細項", x + 48, y + 130);
+
+  row.details.forEach((detail, index) => {
+    const detailY = y + 130 + index * 34;
+    context.fillStyle = "#68767d";
+    context.font = '700 18px "Noto Sans TC", sans-serif';
+    context.textAlign = "left";
+    context.fillText(detail[0], x + 138, detailY);
+    context.fillStyle = "#17242b";
+    context.font = '800 19px "Noto Sans TC", sans-serif';
+    context.textAlign = "right";
+    context.fillText(`${detail[1]}／${detail[2]}`, x + width - 48, detailY);
+  });
+  context.textAlign = "left";
+}
+
+function drawMobileTotalCard(context, x, y, width, employeeTotal, employerTotal) {
+  roundRect(context, x, y, width, 112, 18, "#f3f6f4");
+  context.fillStyle = "#17242b";
+  context.font = '800 22px "Noto Sans TC", sans-serif';
+  context.fillText("員工自付合計", x + 28, y + 44);
+  context.fillText("雇主負擔合計", x + 28, y + 88);
+  context.textAlign = "right";
+  context.fillStyle = "#0f765e";
+  context.font = '800 28px "Noto Sans TC", sans-serif';
+  context.fillText(employeeTotal, x + width - 28, y + 44);
+  context.fillStyle = "#17242b";
+  context.fillText(employerTotal, x + width - 28, y + 88);
+  context.textAlign = "left";
 }
 
 function drawLaborDetailOnCanvas(context, x, y, details) {
@@ -943,10 +1083,11 @@ async function downloadPayslip() {
 
     const employee = $("employeeName").value.trim() || "員工";
     await deliverCanvasImage(
-      canvas,
+      createPayslipWallpaperCanvas(earnings, deductions, earningTotal, deductionTotal),
       `${employee}-${$("payrollMonth").value || "薪資"}薪資條.jpg`,
       "薪資條已下載",
-      "長按薪資條即可儲存到手機相簿"
+      "長按薪資條即可儲存到手機相簿",
+      true
     );
   } catch (error) {
     console.error(error);
@@ -987,8 +1128,112 @@ function drawPayslipColumn(context, x, y, width, title, items, total, color) {
   context.textAlign = "left";
 }
 
-async function deliverCanvasImage(canvas, filename, desktopMessage, mobileMessage) {
-  const outputCanvas = createWallpaperCanvas(canvas);
+function createPayslipWallpaperCanvas(earnings, deductions, earningTotal, deductionTotal) {
+  const width = 1080;
+  const height = 1920;
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext("2d");
+  context.textBaseline = "alphabetic";
+
+  context.fillStyle = "#f3f0e8";
+  context.fillRect(0, 0, width, height);
+  drawDots(context, width, height);
+  roundRect(context, 44, 56, 992, 1808, 34, "#ffffff");
+
+  context.fillStyle = "#0f765e";
+  context.font = '800 26px "Noto Sans TC", sans-serif';
+  context.fillText($("companyName").value.trim() || "公司名稱", 86, 124);
+  context.fillStyle = "#68767d";
+  context.font = '700 18px "Noto Sans TC", sans-serif';
+  context.fillText(`由 ${OFFICE_NAME} 產製`, 86, 158);
+
+  context.fillStyle = "#17242b";
+  context.font = '800 64px "Noto Sans TC", sans-serif';
+  context.fillText("薪資明細表", 86, 238);
+  context.textAlign = "right";
+  context.font = '800 28px "Noto Sans TC", sans-serif';
+  context.fillText(formatMonth($("payrollMonth").value), 994, 152);
+  context.textAlign = "left";
+
+  roundRect(context, 86, 280, 908, 118, 18, "#f3f6f4");
+  context.fillStyle = "#68767d";
+  context.font = '700 18px "Noto Sans TC", sans-serif';
+  context.fillText("員工姓名", 114, 322);
+  context.fillText("發薪日", 560, 322);
+  context.fillStyle = "#17242b";
+  context.font = '800 30px "Noto Sans TC", sans-serif';
+  context.fillText($("employeeName").value.trim() || "未填寫", 114, 368);
+  context.fillText(formatDate($("payDate").value), 560, 368);
+
+  let y = 446;
+  y = drawMobilePayslipSection(context, 86, y, 908, "應發項目", earnings, earningTotal, "#0f765e");
+  y += 24;
+  y = drawMobilePayslipSection(context, 86, y, 908, "應扣項目", deductions, deductionTotal, "#a55338");
+  y += 36;
+
+  roundRect(context, 86, y, 908, 142, 22, "#17242b");
+  context.fillStyle = "#ffffff";
+  context.font = '800 28px "Noto Sans TC", sans-serif';
+  context.fillText("本期實發金額", 120, y + 84);
+  context.textAlign = "right";
+  context.font = '800 58px "Noto Sans TC", sans-serif';
+  context.fillText(currency(earningTotal - deductionTotal), 960, y + 88);
+  context.textAlign = "left";
+
+  const noteY = Math.max(y + 190, 1690);
+  roundRect(context, 86, noteY, 908, 112, 18, "#f3f6f4");
+  context.textAlign = "center";
+  context.fillStyle = "#68767d";
+  context.font = '500 17px "Noto Sans TC", sans-serif';
+  context.fillText("本薪資條由群利稅務記帳士事務所薪資小幫手產製，金額請以公司實際薪資紀錄為準。", width / 2, noteY + 44);
+  context.fillText(COPYRIGHT_TEXT, width / 2, noteY + 78);
+  context.textAlign = "left";
+
+  return canvas;
+}
+
+function drawMobilePayslipSection(context, x, y, width, title, items, total, color) {
+  const rows = items.length ? items : [{ name: "尚無項目", amount: 0, empty: true }];
+  const rowHeight = 62;
+  const height = 78 + rows.length * rowHeight;
+
+  roundRect(context, x, y, width, height, 20, "#ffffff");
+  context.fillStyle = `${color}18`;
+  roundRect(context, x, y, width, 78, 20, `${color}18`);
+
+  context.fillStyle = color;
+  context.font = '800 28px "Noto Sans TC", sans-serif';
+  context.fillText(title, x + 28, y + 50);
+  context.textAlign = "right";
+  context.fillText(currency(total), x + width - 28, y + 50);
+
+  rows.forEach((item, index) => {
+    const rowY = y + 78 + index * rowHeight;
+    context.textAlign = "left";
+    context.fillStyle = item.empty ? "#9aa3a5" : "#68767d";
+    context.font = '600 23px "Noto Sans TC", sans-serif';
+    context.fillText(item.name || "未命名項目", x + 28, rowY + 40);
+    if (!item.empty) {
+      context.textAlign = "right";
+      context.fillStyle = "#17242b";
+      context.font = '800 25px "Noto Sans TC", sans-serif';
+      context.fillText(currency(item.amount), x + width - 28, rowY + 40);
+    }
+    context.strokeStyle = "#dfe7e5";
+    context.beginPath();
+    context.moveTo(x + 24, rowY + rowHeight - 1);
+    context.lineTo(x + width - 24, rowY + rowHeight - 1);
+    context.stroke();
+  });
+
+  context.textAlign = "left";
+  return y + height;
+}
+
+async function deliverCanvasImage(canvas, filename, desktopMessage, mobileMessage, alreadyWallpaper = false) {
+  const outputCanvas = alreadyWallpaper ? canvas : createWallpaperCanvas(canvas);
   const blob = await new Promise((resolve) => outputCanvas.toBlob(resolve, "image/jpeg", 0.92));
   if (!blob) throw new Error("無法建立圖片");
 
