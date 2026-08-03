@@ -7,6 +7,20 @@ const EMPLOYER_AVG_DEPENDENTS = 0.56;
 const OFFICE_NAME = "群利稅務記帳士事務所";
 const TOOL_NAME = "薪資小幫手";
 const COPYRIGHT_TEXT = "© 2026 群利稅務記帳士事務所。未經授權請勿重製、改作或移除品牌標示。";
+const THEME = {
+  bg: "#F8F6F2",
+  surface: "#F2EEE8",
+  paper: "#FBFAF7",
+  text: "#2F2F2F",
+  muted: "#7C726A",
+  brand: "#4F5F45",
+  brandSoft: "#E6EDE3",
+  accent: "#C8A23A",
+  info: "#6D8190",
+  danger: "#B35448",
+  border: "#E7DED2",
+  white: "#ffffff"
+};
 
 const laborBrackets = [
   29500, 30300, 31800, 33300, 34800, 36300,
@@ -459,39 +473,39 @@ async function downloadResult() {
       { name: "勞工退休金", employee: "—", employer: $("pensionEmployer").textContent }
     ];
 
-    context.fillStyle = "#f3f0e8";
+    context.fillStyle = THEME.bg;
     context.fillRect(0, 0, width, height);
     drawDots(context, width, height);
 
-    roundRect(context, 48, 48, 1104, 1124, 30, "#fffefa");
+    roundRect(context, 48, 48, 1104, 1124, 30, THEME.paper);
 
-    context.fillStyle = "#0f765e";
+    context.fillStyle = THEME.brand;
     context.font = '800 18px "Noto Sans TC", sans-serif';
     context.fillText(OFFICE_NAME, 96, 112);
 
-    context.fillStyle = "#17242b";
+    context.fillStyle = THEME.text;
     context.font = '800 42px "Noto Sans TC", sans-serif';
     context.fillText("勞健保試算", 96, 166);
-    context.fillStyle = "#68767d";
+    context.fillStyle = THEME.muted;
     context.font = '700 16px "Noto Sans TC", sans-serif';
     context.fillText(TOOL_NAME, 96, 196);
 
     drawInsuranceScale(context, 764, 104, 340, insuranceLabels, insuranceMarker);
 
     drawInputSalaryCard(context, 96, 210, 324, 170, salaryText, $("dependentLabel").textContent);
-    drawSummaryCard(context, 438, 210, 324, 170, "#0f765e",
+    drawSummaryCard(context, 438, 210, 324, 170, THEME.surface,
       "員工實領", $("takeHome").textContent, "月薪－勞保自付－健保自付");
-    drawSummaryCard(context, 780, 210, 324, 170, "#17242b",
+    drawSummaryCard(context, 780, 210, 324, 170, THEME.text,
       "雇主每月總成本", $("employerTotal").textContent, "月薪＋雇主負擔勞健保＋勞退");
 
-    context.strokeStyle = "#dfe7e5";
+    context.strokeStyle = THEME.border;
     context.lineWidth = 1;
     context.beginPath();
     context.moveTo(96, 430);
     context.lineTo(1104, 430);
     context.stroke();
 
-    context.fillStyle = "#68767d";
+    context.fillStyle = THEME.muted;
     context.font = '800 17px "Noto Sans TC", sans-serif';
     context.fillText("費用項目", 96, 468);
     context.textAlign = "right";
@@ -505,7 +519,7 @@ async function downloadResult() {
 
       context.textBaseline = "middle";
       context.textAlign = "left";
-      context.fillStyle = "#17242b";
+      context.fillStyle = THEME.text;
       context.font = '800 27px "Noto Sans TC", sans-serif';
       context.fillText(row.name, 96, mainCenter);
 
@@ -519,7 +533,7 @@ async function downloadResult() {
         drawLaborDetailOnCanvas(context, 96, rowTop + 76, row.details);
       }
 
-      context.strokeStyle = "#dfe7e5";
+      context.strokeStyle = THEME.border;
       context.beginPath();
       context.moveTo(96, rowTop + rowHeight);
       context.lineTo(1104, rowTop + rowHeight);
@@ -527,23 +541,23 @@ async function downloadResult() {
       rowTop += rowHeight;
     });
 
-    roundRect(context, 96, 958, 492, 64, 12, "rgba(15,118,94,.08)");
-    roundRect(context, 612, 958, 492, 64, 12, "rgba(23,36,43,.06)");
+    roundRect(context, 96, 958, 492, 64, 12, THEME.brandSoft);
+    roundRect(context, 612, 958, 492, 64, 12, THEME.surface);
     context.textAlign = "left";
-    context.fillStyle = "#17242b";
+    context.fillStyle = THEME.text;
     context.font = '800 22px "Noto Sans TC", sans-serif';
     context.fillText("員工自付合計", 118, 999);
     context.fillText("雇主負擔合計", 634, 999);
     context.textAlign = "right";
-    context.fillStyle = "#0f765e";
+    context.fillStyle = THEME.brand;
     context.font = '800 30px "Noto Sans TC", sans-serif';
     context.fillText($("employeeContributionTotal").textContent, 566, 1001);
-    context.fillStyle = "#17242b";
+    context.fillStyle = THEME.text;
     context.fillText($("employerContributionTotal").textContent, 1082, 1001);
 
-    roundRect(context, 96, 1046, 1008, 100, 12, "#f3f6f4");
+    roundRect(context, 96, 1046, 1008, 100, 12, THEME.surface);
     context.textAlign = "left";
-    context.fillStyle = "#68767d";
+    context.fillStyle = THEME.muted;
     context.font = '500 16px "Noto Sans TC", sans-serif';
     context.fillText("本工具未納入薪資所得扣繳試算；是否扣繳及扣繳金額，請依相關稅務規定辦理。", 118, 1080);
     context.fillText("職災保險依輸入費率估算；試算未含工資墊償基金及補充保費。", 118, 1108);
@@ -573,26 +587,27 @@ function roundRect(context, x, y, width, height, radius, fill) {
 
 function drawSummaryCard(context, x, y, width, height, color, label, amount, note) {
   roundRect(context, x, y, width, height, 22, color);
-  context.fillStyle = "rgba(255,255,255,.85)";
+  const lightCard = color === THEME.surface || color === THEME.paper || color === THEME.brandSoft;
+  context.fillStyle = lightCard ? THEME.brand : "rgba(255,255,255,.85)";
   context.font = '700 16px "Noto Sans TC", sans-serif';
   context.fillText(label, x + 26, y + 40);
-  context.fillStyle = "#ffffff";
+  context.fillStyle = lightCard ? THEME.text : THEME.white;
   context.font = '800 38px "Noto Sans TC", sans-serif';
   context.fillText(amount, x + 26, y + 101);
-  context.fillStyle = "rgba(255,255,255,.7)";
+  context.fillStyle = lightCard ? THEME.muted : "rgba(255,255,255,.72)";
   context.font = '500 12px "Noto Sans TC", sans-serif';
   context.fillText(note, x + 26, y + 136);
 }
 
 function drawInputSalaryCard(context, x, y, width, height, salaryText, dependentText) {
-  roundRect(context, x, y, width, height, 22, "#f3f6f4");
-  context.fillStyle = "#0f765e";
+  roundRect(context, x, y, width, height, 22, THEME.surface);
+  context.fillStyle = THEME.brand;
   context.font = '800 16px "Noto Sans TC", sans-serif';
   context.fillText("輸入月薪", x + 26, y + 40);
-  context.fillStyle = "#17242b";
+  context.fillStyle = THEME.text;
   context.font = '800 38px "Noto Sans TC", sans-serif';
   context.fillText(salaryText, x + 26, y + 101);
-  context.fillStyle = "#68767d";
+  context.fillStyle = THEME.muted;
   context.font = '600 12px "Noto Sans TC", sans-serif';
   context.fillText(dependentText, x + 26, y + 136);
 }
@@ -606,31 +621,31 @@ function createResultWallpaperCanvas(salaryText, insuranceLabels, insuranceMarke
   const context = canvas.getContext("2d");
   context.textBaseline = "alphabetic";
 
-  context.fillStyle = "#f3f0e8";
+  context.fillStyle = THEME.bg;
   context.fillRect(0, 0, width, height);
   drawDots(context, width, height);
 
-  roundRect(context, 44, 56, 992, 1808, 34, "#fffefa");
+  roundRect(context, 44, 56, 992, 1808, 34, THEME.paper);
 
-  context.fillStyle = "#0f765e";
+  context.fillStyle = THEME.brand;
   context.font = '800 24px "Noto Sans TC", sans-serif';
   context.fillText(OFFICE_NAME, 86, 118);
-  context.fillStyle = "#17242b";
+  context.fillStyle = THEME.text;
   context.font = '800 58px "Noto Sans TC", sans-serif';
   context.fillText("勞健保試算", 86, 190);
-  context.fillStyle = "#68767d";
+  context.fillStyle = THEME.muted;
   context.font = '700 22px "Noto Sans TC", sans-serif';
   context.fillText(TOOL_NAME, 86, 230);
 
   drawInsuranceScale(context, 586, 116, 390, insuranceLabels, insuranceMarker);
 
   drawMobileInfoCard(context, 86, 284, 908, 138, "輸入月薪", salaryText, $("dependentLabel").textContent);
-  drawMobileSummaryCard(context, 86, 446, 908, 168, "#0f765e",
+  drawMobileSummaryCard(context, 86, 446, 908, 168, THEME.surface,
     "員工實領", $("takeHome").textContent, "月薪－勞保自付－健保自付");
-  drawMobileSummaryCard(context, 86, 638, 908, 168, "#17242b",
+  drawMobileSummaryCard(context, 86, 638, 908, 168, THEME.text,
     "雇主每月總成本", $("employerTotal").textContent, "月薪＋雇主負擔勞健保＋勞退");
 
-  context.fillStyle = "#68767d";
+  context.fillStyle = THEME.muted;
   context.font = '800 22px "Noto Sans TC", sans-serif';
   context.fillText("費用項目", 86, 875);
   context.textAlign = "right";
@@ -647,8 +662,8 @@ function createResultWallpaperCanvas(salaryText, insuranceLabels, insuranceMarke
 
   drawMobileTotalCard(context, 86, y + 10, 908, $("employeeContributionTotal").textContent, $("employerContributionTotal").textContent);
 
-  roundRect(context, 86, y + 154, 908, 150, 18, "#f3f6f4");
-  context.fillStyle = "#68767d";
+  roundRect(context, 86, y + 154, 908, 150, 18, THEME.surface);
+  context.fillStyle = THEME.muted;
   context.font = '500 18px "Noto Sans TC", sans-serif';
   context.fillText("本工具未納入薪資所得扣繳試算；是否扣繳及扣繳金額，請依相關稅務規定辦理。", 112, y + 196);
   context.fillText("職災保險依輸入費率估算；試算未含工資墊償基金及補充保費。", 112, y + 228);
@@ -658,39 +673,40 @@ function createResultWallpaperCanvas(salaryText, insuranceLabels, insuranceMarke
 }
 
 function drawMobileInfoCard(context, x, y, width, height, label, amount, note) {
-  roundRect(context, x, y, width, height, 22, "#f3f6f4");
-  context.fillStyle = "#0f765e";
+  roundRect(context, x, y, width, height, 22, THEME.surface);
+  context.fillStyle = THEME.brand;
   context.font = '800 22px "Noto Sans TC", sans-serif';
   context.fillText(label, x + 28, y + 42);
-  context.fillStyle = "#17242b";
+  context.fillStyle = THEME.text;
   context.font = '800 46px "Noto Sans TC", sans-serif';
   context.fillText(amount, x + 28, y + 98);
-  context.fillStyle = "#68767d";
+  context.fillStyle = THEME.muted;
   context.font = '700 18px "Noto Sans TC", sans-serif';
   context.fillText(note, x + 28, y + 124);
 }
 
 function drawMobileSummaryCard(context, x, y, width, height, color, label, amount, note) {
   roundRect(context, x, y, width, height, 24, color);
-  context.fillStyle = "rgba(255,255,255,.85)";
+  const lightCard = color === THEME.surface || color === THEME.paper || color === THEME.brandSoft;
+  context.fillStyle = lightCard ? THEME.brand : "rgba(255,255,255,.85)";
   context.font = '800 24px "Noto Sans TC", sans-serif';
   context.fillText(label, x + 32, y + 48);
-  context.fillStyle = "#ffffff";
+  context.fillStyle = lightCard ? THEME.text : THEME.white;
   context.font = '800 56px "Noto Sans TC", sans-serif';
   context.fillText(amount, x + 32, y + 116);
-  context.fillStyle = "rgba(255,255,255,.72)";
+  context.fillStyle = lightCard ? THEME.muted : "rgba(255,255,255,.72)";
   context.font = '600 18px "Noto Sans TC", sans-serif';
   context.fillText(note, x + 32, y + 146);
 }
 
 function drawMobileBreakdownRow(context, x, y, width, height, row) {
-  roundRect(context, x, y, width, height, 18, "#ffffff");
-  context.strokeStyle = "#dfe7e5";
+  roundRect(context, x, y, width, height, 18, THEME.paper);
+  context.strokeStyle = THEME.border;
   context.strokeRect(x, y, width, height);
 
   context.textBaseline = "middle";
   context.textAlign = "left";
-  context.fillStyle = "#17242b";
+  context.fillStyle = THEME.text;
   context.font = '800 30px "Noto Sans TC", sans-serif';
   context.fillText(row.name, x + 26, y + 58);
 
@@ -705,19 +721,19 @@ function drawMobileBreakdownRow(context, x, y, width, height, row) {
     return;
   }
 
-  roundRect(context, x + 24, y + 98, width - 48, 144, 16, "rgba(23,36,43,.035)");
-  context.fillStyle = "#0f765e";
+  roundRect(context, x + 24, y + 98, width - 48, 144, 16, THEME.surface);
+  context.fillStyle = THEME.brand;
   context.font = '800 18px "Noto Sans TC", sans-serif';
   context.textAlign = "left";
   context.fillText("勞保細項（員工／雇主）", x + 48, y + 130);
 
   row.details.forEach((detail, index) => {
     const detailY = y + 164 + index * 30;
-    context.fillStyle = "#68767d";
+    context.fillStyle = THEME.muted;
     context.font = '700 18px "Noto Sans TC", sans-serif';
     context.textAlign = "left";
     context.fillText(detail[0], x + 48, detailY);
-    context.fillStyle = "#17242b";
+    context.fillStyle = THEME.text;
     context.font = '800 19px "Noto Sans TC", sans-serif';
     context.textAlign = "right";
     context.fillText(`${detail[1]}／${detail[2]}`, x + width - 48, detailY);
@@ -726,26 +742,26 @@ function drawMobileBreakdownRow(context, x, y, width, height, row) {
 }
 
 function drawMobileTotalCard(context, x, y, width, employeeTotal, employerTotal) {
-  roundRect(context, x, y, width, 112, 18, "#f3f6f4");
+  roundRect(context, x, y, width, 112, 18, THEME.surface);
   context.textAlign = "left";
-  context.fillStyle = "#17242b";
+  context.fillStyle = THEME.text;
   context.font = '800 22px "Noto Sans TC", sans-serif';
   context.fillText("員工自付合計", x + 28, y + 44);
   context.fillText("雇主負擔合計", x + 28, y + 88);
   context.textAlign = "right";
-  context.fillStyle = "#0f765e";
+  context.fillStyle = THEME.brand;
   context.font = '800 28px "Noto Sans TC", sans-serif';
   context.fillText(employeeTotal, x + width - 28, y + 44);
-  context.fillStyle = "#17242b";
+  context.fillStyle = THEME.text;
   context.fillText(employerTotal, x + width - 28, y + 88);
   context.textAlign = "left";
 }
 
 function drawLaborDetailOnCanvas(context, x, y, details) {
-  roundRect(context, x, y, 1008, 90, 12, "rgba(23,36,43,.04)");
+  roundRect(context, x, y, 1008, 90, 12, THEME.surface);
 
   context.textAlign = "left";
-  context.fillStyle = "#0f765e";
+  context.fillStyle = THEME.brand;
   context.font = '800 16px "Noto Sans TC", sans-serif';
   context.fillText("細項", x + 18, y + 52);
 
@@ -758,11 +774,11 @@ function drawLaborDetailOnCanvas(context, x, y, details) {
   details.forEach((detail, index) => {
     const column = columns[index];
     context.textAlign = column.align;
-    context.fillStyle = "#68767d";
+    context.fillStyle = THEME.muted;
     context.font = '700 15px "Noto Sans TC", sans-serif';
     context.fillText(detail[0], column.x, y + 34);
 
-    context.fillStyle = "#17242b";
+    context.fillStyle = THEME.text;
     context.font = '800 17px "Noto Sans TC", sans-serif';
     context.fillText(`${detail[1]}／${detail[2]}`, column.x, y + 64);
   });
@@ -772,19 +788,19 @@ function drawLaborDetailOnCanvas(context, x, y, details) {
 
 function drawInsuranceScale(context, x, y, width, labels, markerLeft) {
   context.textAlign = "right";
-  context.fillStyle = "#68767d";
+  context.fillStyle = THEME.muted;
   context.font = '600 16px "Noto Sans TC", sans-serif';
   context.fillText("投保級距", x + width, y);
 
   const trackY = y + 30;
   const trackHeight = 10;
   const gradient = context.createLinearGradient(x, trackY, x + width, trackY);
-  gradient.addColorStop(0, "rgba(15,118,94,.16)");
-  gradient.addColorStop(1, "rgba(15,118,94,.92)");
+  gradient.addColorStop(0, "rgba(79,95,69,.18)");
+  gradient.addColorStop(1, "rgba(79,95,69,.82)");
   roundRect(context, x, trackY, width, trackHeight, 999, gradient);
 
-  context.fillStyle = "#ffffff";
-  context.strokeStyle = "rgba(15,118,94,.28)";
+  context.fillStyle = THEME.paper;
+  context.strokeStyle = "rgba(79,95,69,.28)";
   context.lineWidth = 2;
   [x, x + width].forEach((dotX) => {
     context.beginPath();
@@ -799,10 +815,10 @@ function drawInsuranceScale(context, x, y, width, labels, markerLeft) {
   context.lineTo(markerX - 8, trackY - 16);
   context.lineTo(markerX + 8, trackY - 16);
   context.closePath();
-  context.fillStyle = "#17242b";
+  context.fillStyle = THEME.text;
   context.fill();
 
-  context.fillStyle = "#68767d";
+  context.fillStyle = THEME.muted;
   context.font = '700 12px "Noto Sans TC", sans-serif';
   labels.forEach((amount, index) => {
     const labelX = x + (width * index) / (labels.length - 1);
@@ -813,7 +829,7 @@ function drawInsuranceScale(context, x, y, width, labels, markerLeft) {
 }
 
 function drawDots(context, width, height) {
-  context.fillStyle = "rgba(15,118,94,.08)";
+  context.fillStyle = "rgba(79,95,69,.08)";
   for (let x = 12; x < width; x += 24) {
     for (let y = 12; y < height; y += 24) {
       context.beginPath();
@@ -1110,18 +1126,18 @@ async function downloadPayslip() {
     context.scale(scale, scale);
     context.textBaseline = "alphabetic";
 
-    context.fillStyle = "#f3f0e8";
+    context.fillStyle = THEME.bg;
     context.fillRect(0, 0, width, height);
     drawDots(context, width, height);
-    roundRect(context, 48, 48, 1104, height - 96, 28, "#ffffff");
+    roundRect(context, 48, 48, 1104, height - 96, 28, THEME.paper);
 
-    context.fillStyle = "#0f765e";
+    context.fillStyle = THEME.brand;
     context.font = '800 18px "Noto Sans TC", sans-serif';
     context.fillText($("companyName").value.trim() || "公司名稱", 96, 108);
-    context.fillStyle = "#68767d";
+    context.fillStyle = THEME.muted;
     context.font = '700 14px "Noto Sans TC", sans-serif';
     context.fillText(`由 ${OFFICE_NAME} 產製`, 96, 134);
-    context.fillStyle = "#17242b";
+    context.fillStyle = THEME.text;
     context.font = '800 42px "Noto Sans TC", sans-serif';
     context.fillText("薪資明細表", 96, 180);
     context.textAlign = "right";
@@ -1129,29 +1145,29 @@ async function downloadPayslip() {
     context.fillText(formatMonth($("payrollMonth").value), 1104, 130);
     context.textAlign = "left";
 
-    roundRect(context, 96, 194, 1008, 72, 12, "#f3f6f4");
-    context.fillStyle = "#68767d";
+    roundRect(context, 96, 194, 1008, 72, 12, THEME.surface);
+    context.fillStyle = THEME.muted;
     context.font = '600 13px "Noto Sans TC", sans-serif';
     context.fillText("員工姓名", 118, 222);
     context.fillText("發薪日", 660, 222);
-    context.fillStyle = "#17242b";
+    context.fillStyle = THEME.text;
     context.font = '800 19px "Noto Sans TC", sans-serif';
     context.fillText($("employeeName").value.trim() || "未填寫", 118, 250);
     context.fillText(formatDate($("payDate").value), 660, 250);
 
-    drawPayslipColumn(context, 96, 300, 492, "應發項目", earnings, earningTotal, "#0f765e");
-    drawPayslipColumn(context, 612, 300, 492, "應扣項目", deductions, deductionTotal, "#a55338");
+    drawPayslipColumn(context, 96, 300, 492, "應發項目", earnings, earningTotal, THEME.brand);
+    drawPayslipColumn(context, 612, 300, 492, "應扣項目", deductions, deductionTotal, THEME.text);
 
     const netY = 398 + rowCount * 62;
-    roundRect(context, 96, netY, 1008, 92, 12, "#17242b");
-    context.fillStyle = "#ffffff";
+    roundRect(context, 96, netY, 1008, 92, 12, THEME.text);
+    context.fillStyle = THEME.white;
     context.font = '700 20px "Noto Sans TC", sans-serif';
     context.fillText("本期實發金額", 124, netY + 55);
     context.textAlign = "right";
     context.font = '800 38px "Noto Sans TC", sans-serif';
     context.fillText(currency(earningTotal - deductionTotal), 1076, netY + 58);
     context.textAlign = "center";
-    context.fillStyle = "#68767d";
+    context.fillStyle = THEME.muted;
     context.font = '500 12px "Noto Sans TC", sans-serif';
     context.fillText("本薪資條由群利稅務記帳士事務所薪資小幫手產製，金額請以公司實際薪資紀錄為準。", width / 2, netY + 126);
     context.fillText(COPYRIGHT_TEXT, width / 2, netY + 148);
@@ -1184,17 +1200,17 @@ function drawPayslipColumn(context, x, y, width, title, items, total, color) {
   const rows = items.length ? items : [{ name: "尚無項目", amount: 0, empty: true }];
   rows.forEach((item, index) => {
     const rowY = y + 56 + index * 62;
-    context.fillStyle = item.empty ? "#9aa3a5" : "#68767d";
+    context.fillStyle = item.empty ? THEME.info : THEME.muted;
     context.font = '500 16px "Noto Sans TC", sans-serif';
     context.textAlign = "left";
     context.fillText(item.name || "未命名項目", x + 18, rowY + 38);
     if (!item.empty) {
-      context.fillStyle = "#17242b";
+      context.fillStyle = THEME.text;
       context.font = '800 17px "Noto Sans TC", sans-serif';
       context.textAlign = "right";
       context.fillText(currency(item.amount), x + width - 18, rowY + 38);
     }
-    context.strokeStyle = "#dfe7e5";
+    context.strokeStyle = THEME.border;
     context.beginPath();
     context.moveTo(x, rowY + 61);
     context.lineTo(x + width, rowY + 61);
@@ -1212,19 +1228,19 @@ function createPayslipWallpaperCanvas(earnings, deductions, earningTotal, deduct
   const context = canvas.getContext("2d");
   context.textBaseline = "alphabetic";
 
-  context.fillStyle = "#f3f0e8";
+  context.fillStyle = THEME.bg;
   context.fillRect(0, 0, width, height);
   drawDots(context, width, height);
-  roundRect(context, 44, 56, 992, 1808, 34, "#ffffff");
+  roundRect(context, 44, 56, 992, 1808, 34, THEME.paper);
 
-  context.fillStyle = "#0f765e";
+  context.fillStyle = THEME.brand;
   context.font = '800 26px "Noto Sans TC", sans-serif';
   context.fillText($("companyName").value.trim() || "公司名稱", 86, 124);
-  context.fillStyle = "#68767d";
+  context.fillStyle = THEME.muted;
   context.font = '700 18px "Noto Sans TC", sans-serif';
   context.fillText(`由 ${OFFICE_NAME} 產製`, 86, 158);
 
-  context.fillStyle = "#17242b";
+  context.fillStyle = THEME.text;
   context.font = '800 64px "Noto Sans TC", sans-serif';
   context.fillText("薪資明細表", 86, 238);
   context.textAlign = "right";
@@ -1232,24 +1248,24 @@ function createPayslipWallpaperCanvas(earnings, deductions, earningTotal, deduct
   context.fillText(formatMonth($("payrollMonth").value), 994, 152);
   context.textAlign = "left";
 
-  roundRect(context, 86, 280, 908, 118, 18, "#f3f6f4");
-  context.fillStyle = "#68767d";
+  roundRect(context, 86, 280, 908, 118, 18, THEME.surface);
+  context.fillStyle = THEME.muted;
   context.font = '700 18px "Noto Sans TC", sans-serif';
   context.fillText("員工姓名", 114, 322);
   context.fillText("發薪日", 560, 322);
-  context.fillStyle = "#17242b";
+  context.fillStyle = THEME.text;
   context.font = '800 30px "Noto Sans TC", sans-serif';
   context.fillText($("employeeName").value.trim() || "未填寫", 114, 368);
   context.fillText(formatDate($("payDate").value), 560, 368);
 
   let y = 446;
-  y = drawMobilePayslipSection(context, 86, y, 908, "應發項目", earnings, earningTotal, "#0f765e");
+  y = drawMobilePayslipSection(context, 86, y, 908, "應發項目", earnings, earningTotal, THEME.brand);
   y += 24;
-  y = drawMobilePayslipSection(context, 86, y, 908, "應扣項目", deductions, deductionTotal, "#a55338");
+  y = drawMobilePayslipSection(context, 86, y, 908, "應扣項目", deductions, deductionTotal, THEME.text);
   y += 36;
 
-  roundRect(context, 86, y, 908, 142, 22, "#17242b");
-  context.fillStyle = "#ffffff";
+  roundRect(context, 86, y, 908, 142, 22, THEME.text);
+  context.fillStyle = THEME.white;
   context.font = '800 28px "Noto Sans TC", sans-serif';
   context.fillText("本期實發金額", 120, y + 84);
   context.textAlign = "right";
@@ -1258,9 +1274,9 @@ function createPayslipWallpaperCanvas(earnings, deductions, earningTotal, deduct
   context.textAlign = "left";
 
   const noteY = Math.max(y + 190, 1690);
-  roundRect(context, 86, noteY, 908, 112, 18, "#f3f6f4");
+  roundRect(context, 86, noteY, 908, 112, 18, THEME.surface);
   context.textAlign = "center";
-  context.fillStyle = "#68767d";
+  context.fillStyle = THEME.muted;
   context.font = '500 17px "Noto Sans TC", sans-serif';
   context.fillText("本薪資條由群利稅務記帳士事務所薪資小幫手產製，金額請以公司實際薪資紀錄為準。", width / 2, noteY + 44);
   context.fillText(COPYRIGHT_TEXT, width / 2, noteY + 78);
@@ -1274,7 +1290,7 @@ function drawMobilePayslipSection(context, x, y, width, title, items, total, col
   const rowHeight = 62;
   const height = 78 + rows.length * rowHeight;
 
-  roundRect(context, x, y, width, height, 20, "#ffffff");
+  roundRect(context, x, y, width, height, 20, THEME.paper);
   context.fillStyle = `${color}18`;
   roundRect(context, x, y, width, 78, 20, `${color}18`);
 
@@ -1287,16 +1303,16 @@ function drawMobilePayslipSection(context, x, y, width, title, items, total, col
   rows.forEach((item, index) => {
     const rowY = y + 78 + index * rowHeight;
     context.textAlign = "left";
-    context.fillStyle = item.empty ? "#9aa3a5" : "#68767d";
+    context.fillStyle = item.empty ? THEME.info : THEME.muted;
     context.font = '600 23px "Noto Sans TC", sans-serif';
     context.fillText(item.name || "未命名項目", x + 28, rowY + 40);
     if (!item.empty) {
       context.textAlign = "right";
-      context.fillStyle = "#17242b";
+      context.fillStyle = THEME.text;
       context.font = '800 25px "Noto Sans TC", sans-serif';
       context.fillText(currency(item.amount), x + width - 28, rowY + 40);
     }
-    context.strokeStyle = "#dfe7e5";
+    context.strokeStyle = THEME.border;
     context.beginPath();
     context.moveTo(x + 24, rowY + rowHeight - 1);
     context.lineTo(x + width - 24, rowY + rowHeight - 1);
@@ -1337,7 +1353,7 @@ function createWallpaperCanvas(sourceCanvas) {
   canvas.height = height;
   const context = canvas.getContext("2d");
 
-  context.fillStyle = "#f3f0e8";
+  context.fillStyle = THEME.bg;
   context.fillRect(0, 0, width, height);
   drawDots(context, width, height);
 
